@@ -1,0 +1,124 @@
+/* --- THEME ROOT VARIABLES --- */
+:root {
+  --auth-bg: #ffffff;
+  --auth-card-bg: #ffffff;
+  --auth-accent: #ff4757; /* TagTurn Neon Coral */
+  --auth-text-main: #000000;
+  --auth-text-muted: #666666;
+  --auth-border: #000000;
+  --auth-input-bg: #f9f9f9;
+}
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--auth-bg);
+  /* Light technical grid background */
+  background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+}
+
+.auth-card {
+  background: var(--auth-card-bg);
+  width: 100%;
+  max-width: 400px;
+  padding: 50px 40px;
+  border: 1.5px solid var(--auth-border);
+  /* Hard brutalist shadow for 2026 streetwear look */
+  box-shadow: 12px 12px 0px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.auth-icon-container {
+  display: inline-flex;
+  padding: 12px;
+  background: var(--auth-border); /* Solid black icon box */
+  margin-bottom: 20px;
+  border-radius: 0; /* Keep it brutalist/sharp */
+}
+
+.auth-header h2 {
+  color: var(--auth-text-main);
+  font-size: 24px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -1px;
+}
+
+.auth-subtitle {
+  color: var(--auth-text-muted);
+  font-size: 13px;
+  margin-top: 5px;
+}
+
+/* --- INPUTS --- */
+.auth-input-wrapper {
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.auth-input-wrapper input {
+  width: 100%;
+  padding: 15px 15px 15px 45px;
+  background: var(--auth-input-bg);
+  border: 1px solid #e0e0e0;
+  border-radius: 0;
+  color: #000;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.auth-input-wrapper input:focus {
+  outline: none;
+  border-color: var(--auth-border);
+  background: #fff;
+}
+
+.auth-input-icon {
+  position: absolute;
+  left: 15px;
+  color: #999;
+}
+
+/* --- BUTTON --- */
+.auth-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--auth-border);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+  background: var(--auth-accent); /* Branded hover state */
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(255, 71, 87, 0.2);
+}
+
+/* Mobile Adjustments */
+@media (max-width: 480px) {
+  .auth-card {
+    border: none;
+    box-shadow: none;
+    padding: 20px;
+  }
+}

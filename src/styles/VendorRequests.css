@@ -1,0 +1,135 @@
+/* --- GALLERY LAB VENDOR REQUESTS --- */
+
+.gl-admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #ffffff;
+}
+
+.gl-main-content {
+  flex: 1;
+  padding: 60px;
+  background-image: radial-gradient(#d1d1d1 0.5px, transparent 0.5px);
+  background-size: 30px 30px;
+}
+
+.gl-page-header {
+  margin-bottom: 50px;
+}
+
+.gl-meta {
+  font-family: monospace;
+  font-size: 11px;
+  color: #ff4757;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.gl-page-title {
+  font-size: 32px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -1.5px;
+  margin: 10px 0;
+}
+
+.gl-page-subtitle {
+  color: #777;
+  font-size: 14px;
+}
+
+/* Table Architecture */
+.gl-table-wrapper {
+  background: #ffffff;
+  border: 1.5px solid #000;
+  box-shadow: 12px 12px 0px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.gl-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.gl-table th {
+  background: #000;
+  color: #fff;
+  padding: 15px 25px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.gl-table td {
+  padding: 20px 25px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+  color: #333;
+}
+
+.gl-table-row {
+  transition: background 0.2s;
+}
+
+.gl-table-row:hover {
+  background: #fafafa;
+}
+
+.gl-shop-name {
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.gl-email {
+  font-family: monospace;
+  color: #666;
+}
+
+/* Status Badges */
+.gl-badge {
+  font-family: monospace;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 10px;
+  border: 1px solid currentColor;
+}
+
+.gl-badge.pending { color: #888; }
+.gl-badge.approved { color: #2ecc71; background: rgba(46, 204, 113, 0.05); }
+.gl-badge.rejected { color: #ff4757; background: rgba(255, 71, 87, 0.05); }
+
+/* Action Buttons */
+.gl-actions {
+  text-align: right;
+}
+
+.gl-btn-group {
+  display: inline-flex;
+  gap: 8px;
+}
+
+.gl-action-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.gl-action-btn.approve:hover { background: #000; color: #fff; border-color: #000; }
+.gl-action-btn.reject:hover { background: #ff4757; color: #fff; border-color: #ff4757; }
+.gl-action-btn.reset:hover { background: #333; color: #fff; border-color: #333; }
+
+.gl-empty-state {
+  padding: 60px;
+  text-align: center;
+}
+
+.text-right { text-align: right; }

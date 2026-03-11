@@ -1,0 +1,177 @@
+/* --- GALLERY LAB THEME VARIABLES --- */
+:root {
+  --gl-bg: #ffffff;
+  --gl-card: #ffffff;
+  --gl-border: #000000;
+  --gl-soft-border: #e0e0e0;
+  --gl-accent: #ff4757; /* TagTurn Neon Coral */
+  --gl-text-main: #000000;
+  --gl-text-muted: #666666;
+  --gl-grid: rgba(0, 0, 0, 0.05);
+}
+
+.role-page-wrapper-light {
+  background-color: var(--gl-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.role-selection-container-light {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  /* Clinical Grid Background */
+  background-image: linear-gradient(var(--gl-grid) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--gl-grid) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* --- THE GALLERY CARD --- */
+.role-card-gallery {
+  background: var(--gl-card);
+  width: 100%;
+  max-width: 480px;
+  padding: 60px 40px;
+  border: 1.5px solid var(--gl-border); /* Sharp black border */
+  box-shadow: 16px 16px 0px rgba(0, 0, 0, 0.04); /* Hard Brutalist Shadow */
+  position: relative;
+}
+
+.role-header-gallery {
+  text-align: left; /* Shifted to left for a more editorial look */
+  margin-bottom: 45px;
+}
+
+.brand-logo-box-light {
+  display: inline-flex;
+  padding: 12px;
+  background: var(--gl-border);
+  color: #fff;
+  margin-bottom: 24px;
+}
+
+.gallery-tag {
+  display: block;
+  font-family: monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--gl-accent);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.role-title-light {
+  color: var(--gl-text-main);
+  font-size: 2.25rem;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.role-subtitle-light {
+  color: var(--gl-text-muted);
+  font-size: 14px;
+  line-height: 1.5;
+  max-width: 90%;
+}
+
+/* --- BUTTONS --- */
+.role-options-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.role-button-gallery {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+  background: #fff;
+  border: 1px solid var(--gl-soft-border);
+  color: var(--gl-text-main);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.role-button-gallery:hover {
+  background: var(--gl-text-main);
+  border-color: var(--gl-text-main);
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.role-button-gallery:hover .btn-title-gallery,
+.role-button-gallery:hover .btn-subtitle-gallery,
+.role-button-gallery:hover .icon-box-gallery,
+.role-button-gallery:hover .chevron-gallery {
+  color: #ffffff;
+}
+
+.button-content-gallery {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.icon-box-gallery {
+  color: var(--gl-text-main);
+  display: flex;
+  align-items: center;
+}
+
+.btn-title-gallery {
+  display: block;
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.btn-subtitle-gallery {
+  display: block;
+  font-size: 11px;
+  color: var(--gl-text-muted);
+  margin-top: 4px;
+}
+
+.chevron-gallery {
+  color: var(--gl-soft-border);
+  transition: transform 0.3s;
+}
+
+/* --- FOOTER --- */
+.role-footer-gallery {
+  margin-top: 40px;
+  padding-top: 25px;
+  border-top: 1px solid var(--gl-soft-border);
+}
+
+.support-text-gallery {
+  font-size: 10px;
+  font-family: monospace;
+  letter-spacing: 1px;
+  color: var(--gl-text-muted);
+}
+
+.support-link-gallery {
+  color: var(--gl-text-main);
+  font-weight: 700;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 600px) {
+  .role-card-gallery {
+    padding: 30px 20px;
+    border: none;
+    box-shadow: none;
+  }
+}

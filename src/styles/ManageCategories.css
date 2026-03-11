@@ -1,0 +1,641 @@
+/* ========================================================
+   GALLERY LAB: MANAGE CATEGORIES - ENHANCED
+   ======================================================== */
+
+:root {
+  --gl-black: #0a0a0a;
+  --gl-white: #ffffff;
+  --gl-gray-50: #fafafa;
+  --gl-gray-100: #f5f5f5;
+  --gl-gray-200: #e5e5e5;
+  --gl-gray-300: #d4d4d4;
+  --gl-gray-400: #a3a3a3;
+  --gl-accent: #ff4757;
+  --gl-accent-hover: #ff3545;
+  --gl-success: #00ff88;
+  --gl-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --gl-shadow-md: 0 8px 16px rgba(0, 0, 0, 0.08);
+  --gl-shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.12);
+  --gl-radius-sm: 4px;
+  --gl-radius-md: 8px;
+  --gl-transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ========================================================
+   ENTRY SECTION
+   ======================================================== */
+.gl-entry-section {
+  margin-bottom: 48px;
+  animation: slideInUp 0.5s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.gl-bento-entry {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 16px;
+  background: var(--gl-white);
+  padding: 32px;
+  border: 2px solid var(--gl-black);
+  border-radius: var(--gl-radius-sm);
+  box-shadow: 12px 12px 0px rgba(0, 0, 0, 0.06);
+  transition: var(--gl-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.gl-bento-entry::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gl-accent), var(--gl-success));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.6s ease;
+}
+
+.gl-bento-entry:hover::before {
+  transform: scaleX(1);
+}
+
+.gl-bento-entry:hover {
+  box-shadow: 16px 16px 0px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+/* ========================================================
+   FORM ELEMENTS
+   ======================================================== */
+.gl-label {
+  display: block;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.2px;
+  margin-bottom: 10px;
+  color: var(--gl-black);
+  text-transform: uppercase;
+}
+
+.gl-input,
+.gl-select {
+  width: 100%;
+  padding: 14px 16px;
+  border: 2px solid var(--gl-gray-200);
+  border-radius: var(--gl-radius-sm);
+  font-size: 14px;
+  font-family: inherit;
+  background: var(--gl-gray-50);
+  transition: var(--gl-transition);
+  font-weight: 500;
+}
+
+.gl-input:focus,
+.gl-select:focus {
+  outline: none;
+  border-color: var(--gl-black);
+  background: var(--gl-white);
+  box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.05);
+  transform: translateY(-1px);
+}
+
+.gl-input::placeholder {
+  color: var(--gl-gray-400);
+  font-weight: 400;
+}
+
+.gl-select {
+  cursor: pointer;
+  background-color: var(--gl-white);
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%230a0a0a' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+  appearance: none;
+}
+
+.gl-select:hover {
+  border-color: var(--gl-gray-300);
+}
+
+/* ========================================================
+   UPLOAD BUTTON
+   ======================================================== */
+.gl-upload-label {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 0 24px;
+  background: var(--gl-gray-100);
+  border: 2px dashed var(--gl-gray-300);
+  border-radius: var(--gl-radius-sm);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: var(--gl-transition);
+  text-transform: uppercase;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+}
+
+.gl-upload-label::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.05);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.gl-upload-label:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.gl-upload-label:hover {
+  background: var(--gl-white);
+  border-color: var(--gl-black);
+  border-style: solid;
+  transform: scale(1.02);
+}
+
+.gl-upload-label svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========================================================
+   SUBMIT BUTTON
+   ======================================================== */
+.gl-submit-btn {
+  background: var(--gl-black);
+  color: var(--gl-white);
+  border: 2px solid var(--gl-black);
+  border-radius: var(--gl-radius-sm);
+  padding: 0 28px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: var(--gl-transition);
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.gl-submit-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--gl-accent);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+}
+
+.gl-submit-btn:hover:not(:disabled)::before {
+  width: 400px;
+  height: 400px;
+}
+
+.gl-submit-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(255, 71, 87, 0.3);
+}
+
+.gl-submit-btn:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.gl-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.gl-submit-btn span,
+.gl-submit-btn svg {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========================================================
+   CATEGORY GRID
+   ======================================================== */
+.gl-category-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 28px;
+  animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.gl-category-card {
+  background: var(--gl-white);
+  border: 2px solid var(--gl-black);
+  border-radius: var(--gl-radius-md);
+  position: relative;
+  transition: var(--gl-transition);
+  overflow: hidden;
+  animation: scaleIn 0.4s ease-out backwards;
+}
+
+.gl-category-card:nth-child(1) { animation-delay: 0.05s; }
+.gl-category-card:nth-child(2) { animation-delay: 0.1s; }
+.gl-category-card:nth-child(3) { animation-delay: 0.15s; }
+.gl-category-card:nth-child(4) { animation-delay: 0.2s; }
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.gl-category-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.1), rgba(0, 255, 136, 0.1));
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.gl-category-card:hover {
+  transform: translateY(-12px) rotate(-1deg);
+  box-shadow: 16px 16px 0px rgba(0, 0, 0, 0.08),
+              0 20px 40px rgba(0, 0, 0, 0.12);
+}
+
+.gl-category-card:hover::after {
+  opacity: 1;
+}
+
+/* ========================================================
+   CARD IMAGE
+   ======================================================== */
+.gl-card-image-wrapper {
+  aspect-ratio: 16/10;
+  overflow: hidden;
+  border-bottom: 2px solid var(--gl-black);
+  position: relative;
+  background: var(--gl-gray-100);
+}
+
+.gl-card-image-wrapper::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.6s;
+  z-index: 1;
+}
+
+.gl-category-card:hover .gl-card-image-wrapper::before {
+  left: 100%;
+}
+
+.gl-card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(100%) contrast(1.1);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transform: scale(1.1);
+}
+
+.gl-category-card:hover .gl-card-image {
+  filter: grayscale(0%) contrast(1);
+  transform: scale(1.15) rotate(2deg);
+}
+
+/* ========================================================
+   CARD CONTENT
+   ======================================================== */
+.gl-card-content {
+  padding: 18px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--gl-white);
+  position: relative;
+  z-index: 2;
+}
+
+.gl-cat-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gl-parent-tag {
+  color: var(--gl-success);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(0, 255, 136, 0.1);
+  border-radius: 3px;
+  width: fit-content;
+  transition: var(--gl-transition);
+}
+
+.gl-category-card:hover .gl-parent-tag {
+  background: rgba(0, 255, 136, 0.2);
+  transform: translateX(4px);
+}
+
+.gl-card-name {
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: var(--gl-black);
+  transition: var(--gl-transition);
+}
+
+.gl-category-card:hover .gl-card-name {
+  color: var(--gl-accent);
+  transform: translateX(2px);
+}
+
+/* ========================================================
+   CARD ACTIONS
+   ======================================================== */
+.gl-card-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.gl-icon-btn {
+  background: var(--gl-white);
+  border: 2px solid var(--gl-gray-200);
+  border-radius: var(--gl-radius-sm);
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--gl-transition);
+  position: relative;
+  overflow: hidden;
+}
+
+.gl-icon-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--gl-black);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: width 0.4s, height 0.4s;
+}
+
+.gl-icon-btn svg {
+  position: relative;
+  z-index: 1;
+  transition: var(--gl-transition);
+}
+
+.gl-icon-btn.edit:hover::before { background: var(--gl-black); }
+.gl-icon-btn.delete:hover::before { background: var(--gl-accent); }
+
+.gl-icon-btn:hover::before {
+  width: 80px;
+  height: 80px;
+}
+
+.gl-icon-btn.edit:hover {
+  border-color: var(--gl-black);
+  transform: translateY(-2px) rotate(5deg);
+}
+
+.gl-icon-btn.delete:hover {
+  border-color: var(--gl-accent);
+  transform: translateY(-2px) rotate(-5deg);
+}
+
+.gl-icon-btn:hover svg {
+  color: var(--gl-white);
+  transform: scale(1.1);
+}
+
+/* ========================================================
+   MODAL
+   ======================================================== */
+.gl-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px) saturate(150%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.gl-modal-box {
+  background: var(--gl-white);
+  border: 3px solid var(--gl-black);
+  border-radius: var(--gl-radius-md);
+  width: 100%;
+  max-width: 440px;
+  padding: 40px;
+  box-shadow: 24px 24px 0px rgba(0, 0, 0, 0.1),
+              0 20px 60px rgba(0, 0, 0, 0.15);
+  animation: modalSlide 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+@keyframes modalSlide {
+  from {
+    opacity: 0;
+    transform: scale(0.9) translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.gl-modal-box::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  right: -3px;
+  height: 6px;
+  background: linear-gradient(90deg, var(--gl-accent), var(--gl-success), var(--gl-accent));
+  background-size: 200% 100%;
+  animation: gradientShift 3s ease infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.gl-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--gl-gray-100);
+}
+
+.gl-modal-title {
+  font-weight: 900;
+  font-size: 18px;
+  letter-spacing: 1.5px;
+  color: var(--gl-black);
+}
+
+.gl-close-x {
+  background: var(--gl-gray-100);
+  border: 2px solid var(--gl-gray-200);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--gl-transition);
+}
+
+.gl-close-x:hover {
+  background: var(--gl-accent);
+  border-color: var(--gl-accent);
+  color: var(--gl-white);
+  transform: rotate(90deg) scale(1.1);
+}
+
+.gl-save-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--gl-black);
+  color: var(--gl-white);
+  font-weight: 800;
+  font-size: 12px;
+  letter-spacing: 1px;
+  border: 2px solid var(--gl-black);
+  border-radius: var(--gl-radius-sm);
+  margin-top: 24px;
+  cursor: pointer;
+  transition: var(--gl-transition);
+  text-transform: uppercase;
+  position: relative;
+  overflow: hidden;
+}
+
+.gl-save-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  background: var(--gl-accent);
+  transform: translate(-50%, -50%);
+  transition: width 0.5s, height 0.5s;
+}
+
+.gl-save-btn:hover::before {
+  width: 500px;
+  height: 500px;
+}
+
+.gl-save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(255, 71, 87, 0.3);
+}
+
+.gl-save-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+/* ========================================================
+   EMPTY STATE
+   ======================================================== */
+.gl-category-grid > div:first-child:last-child {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 20px;
+  border: 2px dashed var(--gl-gray-300);
+  border-radius: var(--gl-radius-md);
+  background: var(--gl-gray-50);
+  color: var(--gl-gray-400);
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* ========================================================
+   RESPONSIVE
+   ======================================================== */
+@media (max-width: 768px) {
+  .gl-bento-entry {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+
+  .gl-category-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .gl-modal-box {
+    margin: 20px;
+    padding: 30px;
+  }
+}
