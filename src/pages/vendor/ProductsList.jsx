@@ -1,220 +1,260 @@
 import { useEffect, useState } from "react";
 import {
-  collection,
-  getDocs,
-  deleteDoc,
-  doc,
-  orderBy,
-  query,
+  collection, getDocs, deleteDoc, doc, orderBy, query,
 } from "firebase/firestore";
-import {
-  ref,
-  deleteObject,
-} from "firebase/storage";
+import { ref, deleteObject } from "firebase/storage";
 import { db, storage } from "../../firebase/firebaseConfig";
-import VendorLayout from "../../layout/VendorLayout";
 import EditProductModal from "../../components/EditProductModal";
-import { Trash2, Edit, Package, ShoppingBag } from "lucide-react";
+import Sidebar from "../../components/vendor/VendorSidebar";
+import { Trash2, Edit, Package, ShoppingBag, Search, SlidersHorizontal } from "lucide-react";
 import { toast } from "react-toastify";
 import "../../styles/ProductsList.css";
 
 export default function ProductsList() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
-  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [products, setProducts]        = useState([]);
+  const [loading, setLoading]          = useState(true);
+  const [showModal, setShowModal]      = useState(false);
+  const [selectedProduct, setSelected] = useState(null);
+  const [search, setSearch]            = useState("");
+  const [filterCat, setFilterCat]      = useState("All");
 
-  /* ---------------- LOAD PRODUCTS ---------------- */
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const q = query(
-        collection(db, "products"),
-        orderBy("createdAt", "desc")
-      );
+      const q    = query(collection(db, "products"), orderBy("createdAt", "desc"));
       const snap = await getDocs(q);
-
-      const data = snap.docs.map(docSnap => ({
-        id: docSnap.id,
-        ...docSnap.data(),
-      }));
-
-      setProducts(data);
+      setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     } catch (err) {
-      console.error("Error loading products:", err);
+      console.error(err);
       toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------------- DELETE PRODUCT ---------------- */
   const deleteProduct = async (product) => {
-    if (!window.confirm(`Are you sure you want to delete "${product.name}"?`))
-      return;
-
+    if (!window.confirm(`Delete "${product.name}"?`)) return;
     try {
-      // 1️⃣ Delete images from Firebase Storage
-      if (product.imagePaths?.length > 0) {
-        for (const path of product.imagePaths) {
-          await deleteObject(ref(storage, path));
-        }
-      }
-
-      // 2️⃣ Delete Firestore document
+      if (product.imagePaths?.length)
+        for (const path of product.imagePaths) await deleteObject(ref(storage, path));
       await deleteDoc(doc(db, "products", product.id));
-
-      toast.success("Product deleted successfully");
+      toast.success("Product deleted");
       loadProducts();
     } catch (err) {
-      console.error("Error deleting product:", err);
+      console.error(err);
       toast.error("Failed to delete product");
     }
   };
 
-  const openModal = (product) => {
-    setSelectedProduct(product);
-    setShowModal(true);
-  };
+  const openModal  = (p) => { setSelected(p); setShowModal(true); };
+  const closeModal = (r) => { setShowModal(false); setSelected(null); if (r) loadProducts(); };
 
-  const closeModal = (shouldRefresh) => {
-    setShowModal(false);
-    setSelectedProduct(null);
-    if (shouldRefresh) loadProducts();
-  };
+  const stockLabel = (s) => s <= 10 ? "LOW"    : s <= 50 ? "MED"    : "OK";
+  const stockMod   = (s) => s <= 10 ? "pl-low" : s <= 50 ? "pl-med" : "pl-ok";
 
-  const getStockClass = (stock) => {
-    if (stock <= 10) return "stock-low";
-    if (stock <= 50) return "stock-medium";
-    return "stock-high";
-  };
+  const categories = ["All", ...new Set(products.map((p) => p.category).filter(Boolean))];
 
-  useEffect(() => {
-    loadProducts();
-  }, []);
+  const filtered = products.filter((p) => {
+    const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
+    const matchCat    = filterCat === "All" || p.category === filterCat;
+    return matchSearch && matchCat;
+  });
+
+  useEffect(() => { loadProducts(); }, []);
 
   return (
-    <VendorLayout>
-      <div className="products-page">
+    <div className="pl-shell">
+      <Sidebar />
 
-        {/* Page Header */}
-        <div className="products-header">
-          <h2 className="products-title">
-            <ShoppingBag size={30} /> Manage Products
-          </h2>
-          <p className="products-subtext">
-            View, update, and manage your inventory
-          </p>
-        </div>
+      <div className="pl-page">
 
-        {/* Loading */}
-        {loading ? (
-          <div className="loading-state">
-            <p>Loading your inventory...</p>
-          </div>
-        ) : products.length === 0 ? (
-          <div className="empty-state">
-            <div className="empty-state-icon">
-              <Package size={50} color="#cbd5e1" />
+        {/* ── HEADER ── */}
+        <header className="pl-header">
+          <div className="pl-header-top">
+            <div className="pl-title-block">
+              <span className="pl-eyebrow">Gallery Lab · Inventory</span>
+              <h1 className="pl-title">
+                <ShoppingBag size={22} strokeWidth={1.5} />
+                Manage Products
+              </h1>
             </div>
-            <h3>No products found</h3>
+            <div className="pl-stats">
+              <div className="pl-stat">
+                <span className="pl-stat-num">{products.length}</span>
+                <span className="pl-stat-lbl">Total</span>
+              </div>
+              <div className="pl-stat pl-stat-warn">
+                <span className="pl-stat-num">{products.filter((p) => p.stock <= 10).length}</span>
+                <span className="pl-stat-lbl">Low Stock</span>
+              </div>
+              <div className="pl-stat pl-stat-accent">
+                <span className="pl-stat-num">{filtered.length}</span>
+                <span className="pl-stat-lbl">Showing</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="pl-controls">
+            <div className="pl-search-wrap">
+              <Search size={13} strokeWidth={1.5} className="pl-search-icon" />
+              <input
+                className="pl-search"
+                type="text"
+                placeholder="Search products…"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+            <div className="pl-filter-wrap">
+              <SlidersHorizontal size={12} strokeWidth={1.5} className="pl-filter-icon" />
+              <select
+                className="pl-filter"
+                value={filterCat}
+                onChange={(e) => setFilterCat(e.target.value)}
+              >
+                {categories.map((c) => <option key={c}>{c}</option>)}
+              </select>
+            </div>
+          </div>
+        </header>
+
+        {/* ── LOADING ── */}
+        {loading ? (
+          <div className="pl-loading">
+            <div className="pl-spin" />
+            <span>Loading inventory…</span>
+          </div>
+
+        ) : products.length === 0 ? (
+          <div className="pl-empty">
+            <Package size={40} strokeWidth={1} />
+            <h3>No products yet</h3>
             <p>Add products to see them here.</p>
           </div>
-        ) : (
-          <div className="products-table-wrapper">
 
-            {/* Info Bar */}
-            <div className="table-info-bar">
-              <span className="total-products">
-                Total Products: <strong>{products.length}</strong>
-              </span>
-              <span>Showing all items</span>
+        ) : (
+          <>
+            {/* ── DESKTOP TABLE ── */}
+            <div className="pl-table-wrap">
+              <table className="pl-table">
+                <thead>
+                  <tr>
+                    <th>Image</th>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Sizes</th>
+                    <th>Stock</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="pl-no-results">
+                        No results for "{search}"
+                      </td>
+                    </tr>
+                  ) : filtered.map((p) => (
+                    <tr key={p.id} className="pl-row">
+                      <td className="pl-td-img">
+                        <div className="pl-img-frame">
+                          <img
+                            src={p.images?.[0] || "/no-image.png"}
+                            alt={p.name}
+                            className="pl-img"
+                          />
+                        </div>
+                      </td>
+                      <td className="pl-td-name">
+                        <span className="pl-name">{p.name}</span>
+                      </td>
+                      <td><span className="pl-cat">{p.category}</span></td>
+                      <td className="pl-td-price">₹{p.price?.toLocaleString()}</td>
+                      <td>
+                        <div className="pl-sizes">
+                          {p.sizes?.slice(0, 4).map((s, i) => (
+                            <span key={i} className="pl-size">{s}</span>
+                          ))}
+                          {p.sizes?.length > 4 && (
+                            <span className="pl-size pl-size-more">+{p.sizes.length - 4}</span>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`pl-stock ${stockMod(p.stock)}`}>
+                          <span className="pl-stock-dot" />
+                          {p.stock} · {stockLabel(p.stock)}
+                        </span>
+                      </td>
+                      <td>
+                        <div className="pl-actions">
+                          <button className="pl-btn pl-edit" onClick={() => openModal(p)}>
+                            <Edit size={12} strokeWidth={2} /> Edit
+                          </button>
+                          <button className="pl-btn pl-del" onClick={() => deleteProduct(p)}>
+                            <Trash2 size={12} strokeWidth={2} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* Products Table */}
-            <table className="products-table">
-              <thead>
-                <tr>
-                  <th>Image</th>
-                  <th>Product Name</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Sizes</th>
-                  <th>Stock</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {products.map((p) => (
-                  <tr key={p.id}>
-                    <td className="product-img-cell">
-                      <img
-                        src={p.images?.[0] || "/no-image.png"}
-                        alt={p.name}
-                        className="product-table-img"
-                      />
-                    </td>
-
-                    <td>{p.name}</td>
-
-                    <td>
-                      <span className="category-badge">
-                        {p.category}
+            {/* ── MOBILE CARDS ── */}
+            <div className="pl-cards">
+              {filtered.length === 0 ? (
+                <div className="pl-no-results-card">No results for "{search}"</div>
+              ) : filtered.map((p) => (
+                <div key={p.id} className="pl-card">
+                  <div className="pl-card-img-col">
+                    <img
+                      src={p.images?.[0] || "/no-image.png"}
+                      alt={p.name}
+                      className="pl-card-img"
+                    />
+                  </div>
+                  <div className="pl-card-body">
+                    <div className="pl-card-row1">
+                      <span className="pl-cat">{p.category}</span>
+                      <span className={`pl-stock ${stockMod(p.stock)}`}>
+                        <span className="pl-stock-dot" />
+                        {stockLabel(p.stock)}
                       </span>
-                    </td>
-
-                    <td>₹{p.price}</td>
-
-                    <td>
-                      <div className="sizes-list">
-                        {p.sizes?.map((size, i) => (
-                          <span key={i} className="size-badge">
-                            {size}
-                          </span>
+                    </div>
+                    <p className="pl-card-name">{p.name}</p>
+                    <p className="pl-card-price">₹{p.price?.toLocaleString()}</p>
+                    {p.sizes?.length > 0 && (
+                      <div className="pl-sizes">
+                        {p.sizes.slice(0, 5).map((s, i) => (
+                          <span key={i} className="pl-size">{s}</span>
                         ))}
+                        {p.sizes.length > 5 && (
+                          <span className="pl-size pl-size-more">+{p.sizes.length - 5}</span>
+                        )}
                       </div>
-                    </td>
+                    )}
+                    <div className="pl-card-actions">
+                      <button className="pl-btn pl-edit pl-btn-full" onClick={() => openModal(p)}>
+                        <Edit size={12} strokeWidth={2} /> Edit
+                      </button>
+                      <button className="pl-btn pl-del" onClick={() => deleteProduct(p)}>
+                        <Trash2 size={12} strokeWidth={2} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
 
-                    <td>
-                      <span className={`stock-cell ${getStockClass(p.stock)}`}>
-                        {p.stock} units
-                      </span>
-                    </td>
-
-                    <td>
-                      <div className="actions-cell">
-                        <button
-                          className="action-btn edit-btn"
-                          onClick={() => openModal(p)}
-                        >
-                          <Edit size={14} /> Edit
-                        </button>
-
-                        <button
-                          className="action-btn delete-btn"
-                          onClick={() => deleteProduct(p)}
-                        >
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {showModal && (
+          <EditProductModal show={showModal} product={selectedProduct} onClose={closeModal} />
         )}
       </div>
-
-      {/* Edit Modal */}
-      {showModal && (
-        <EditProductModal
-          show={showModal}
-          product={selectedProduct}
-          onClose={closeModal}
-        />
-      )}
-    </VendorLayout>
+    </div>
   );
 }
