@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { db } from "../../firebase/firebaseConfig";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import {
@@ -20,6 +20,25 @@ export default function VendorRequests() {
 
   const auth = getAuth();
 
+  /* ================= FETCH ALL VENDORS (Memoized) ================= */
+  const fetchVendors = useCallback(async () => {
+    setLoading(true);
+    try {
+      const snap = await getDocs(collection(db, "vendors"));
+      setVendors(
+        snap.docs.map((d) => ({
+          id: d.id,
+          ...d.data(),
+        }))
+      );
+    } catch (err) {
+      console.error(err);
+      toast.error("FAILED_TO_LOAD_VENDOR_REQUESTS");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   /* ================= AUTH CHECK ================= */
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, (user) => {
@@ -34,24 +53,12 @@ export default function VendorRequests() {
     return () => unsub();
   }, [auth]);
 
-  /* ================= FETCH ALL VENDORS ================= */
-  const fetchVendors = async () => {
-    try {
-      const snap = await getDocs(collection(db, "vendors"));
-
-      setVendors(
-        snap.docs.map((d) => ({
-          id: d.id,
-          ...d.data(),
-        }))
-      );
-    } catch (err) {
-      console.error(err);
-      toast.error("FAILED_TO_LOAD_VENDOR_REQUESTS");
-    } finally {
-      setLoading(false);
+  /* ================= LOAD DATA ================= */
+  useEffect(() => {
+    if (authReady) {
+      fetchVendors();
     }
-  };
+  }, [authReady, fetchVendors]);
 
   /* ================= UPDATE STATUS ================= */
   const updateStatus = async (vendorId, newStatus) => {
@@ -72,65 +79,77 @@ export default function VendorRequests() {
     }
   };
 
-  /* ================= LOAD DATA ================= */
-  useEffect(() => {
-    if (authReady) {
-      fetchVendors();
-    }
-  }, [authReady]);
-
-  /* ================= UI ================= */
   return (
-    
-    <div className="gl-table-wrapper">
+    <div className="admin-layout-container">
       <AdminSidebar />
-  <table className="gl-table">
-    <thead>
-      <tr>
-        <th>SHOP NAME</th>
-        <th>EMAIL</th>
-        <th>STATUS</th>
-        <th>ACTIONS</th>
-      </tr>
-    </thead>
+      
+      {/* Added pl-page to respect the sidebar offset fixed earlier */}
+      <div className="pl-page gl-table-wrapper">
+        <header className="admin-header">
+          <h1>Vendor Requests</h1>
+          <p>Review and authorize store access requests.</p>
+        </header>
 
-    <tbody>
-      {vendors.map((v) => (
-        <tr key={v.id}>
-          <td className="gl-shop-name">{v.shopName}</td>
-          <td className="gl-email">{v.email}</td>
-          <td>
-            <span className={`gl-badge ${v.status}`}>
-              {v.status?.toUpperCase()}
-            </span>
-          </td>
-          <td className="gl-actions">
-            <button
-              className="approve"
-              disabled={processingId === v.id}
-              onClick={() => updateStatus(v.id, "approved")}
-            >
-              {processingId === v.id ? (
-                <Loader2 size={16} className="animate-spin" />
+        {loading ? (
+          <div className="loading-state">
+            <Loader2 className="animate-spin" size={40} />
+            <p>SYNCING_DATA...</p>
+          </div>
+        ) : (
+          <table className="gl-table">
+            <thead>
+              <tr>
+                <th>SHOP NAME</th>
+                <th>EMAIL</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {vendors.length === 0 ? (
+                <tr>
+                  <td colSpan="4" className="empty-msg">{"NO_PENDING_REQUESTS_FOUND"}</td>
+                </tr>
               ) : (
-                <Check size={16} />
+                vendors.map((v) => (
+                  <tr key={v.id}>
+                    <td className="gl-shop-name">{v.shopName || "N/A"}</td>
+                    <td className="gl-email">{v.email}</td>
+                    <td>
+                      <span className={`gl-badge ${v.status}`}>
+                        {v.status?.toUpperCase() || "PENDING"}
+                      </span>
+                    </td>
+                    <td className="gl-actions">
+                      <button
+                        className="approve"
+                        disabled={processingId === v.id}
+                        onClick={() => updateStatus(v.id, "approved")}
+                      >
+                        {processingId === v.id ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : (
+                          <Check size={16} />
+                        )}
+                        {"APPROVE"}
+                      </button>
+
+                      <button
+                        className="reject"
+                        disabled={processingId === v.id}
+                        onClick={() => updateStatus(v.id, "rejected")}
+                      >
+                        <X size={16} /> {"REJECT"}
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
-              APPROVE
-            </button>
-
-            <button
-              className="reject"
-              disabled={processingId === v.id}
-              onClick={() => updateStatus(v.id, "rejected")}
-            >
-              <X size={16} /> REJECT
-            </button>
-          </td>
-        </tr>
-      ))}
-    </tbody>
-  </table>
-</div>
-
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
   );
 }

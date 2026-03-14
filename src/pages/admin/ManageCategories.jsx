@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import {
   collection,
   addDoc,
@@ -30,9 +30,7 @@ import {
 import AdminSidebar from "../../components/admin/AdminSidebar";
 import "../../styles/ManageCategories.css";
 
-/* =========================================================
-   IMAGE UPLOAD HELPER
-========================================================= */
+/* ── IMAGE UPLOAD HELPER ── */
 const uploadImageWithName = async (file, folder, name) => {
   if (!file) return null;
   if (!file.type.startsWith("image/")) {
@@ -50,7 +48,6 @@ const uploadImageWithName = async (file, folder, name) => {
 export default function ManageCategories() {
   const [categoryName, setCategoryName] = useState("");
   const [categoryImage, setCategoryImage] = useState(null);
-  // NEW: State for parent section selection
   const [parentSection, setParentSection] = useState("Mens"); 
   
   const [categories, setCategories] = useState([]);
@@ -61,8 +58,8 @@ export default function ManageCategories() {
   const [editImage, setEditImage] = useState(null);
   const [editParentSection, setEditParentSection] = useState("Mens");
 
-  /* ================= LOAD ================= */
-  const loadCategories = async () => {
+  /* ── LOAD (Stable with useCallback) ── */
+  const loadCategories = useCallback(async () => {
     try {
       const q = query(
         collection(db, "categories"),
@@ -78,9 +75,13 @@ export default function ManageCategories() {
       console.error(err);
       toast.error("DATA_FETCH_ERROR");
     }
-  };
+  }, []);
 
-  /* ================= ADD ================= */
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
+  /* ── ADD ── */
   const addCategory = async () => {
     if (!categoryName.trim()) return toast.warning("ENTER_CATEGORY_NAME");
     if (!categoryImage) return toast.warning("UPLOAD_CATEGORY_IMAGE");
@@ -95,7 +96,7 @@ export default function ManageCategories() {
 
       await addDoc(collection(db, "categories"), {
         name: categoryName.trim(),
-        parentSection: parentSection, // Saving "Mens", "Womens", etc.
+        parentSection: parentSection,
         image: url,
         imagePath: path,
         createdAt: serverTimestamp(),
@@ -104,7 +105,7 @@ export default function ManageCategories() {
       toast.success("CATEGORY_ADDED");
       setCategoryName("");
       setCategoryImage(null);
-      setParentSection("Mens"); // Reset to default
+      setParentSection("Mens");
       loadCategories();
     } catch (err) {
       console.error(err);
@@ -114,7 +115,7 @@ export default function ManageCategories() {
     }
   };
 
-  /* ================= DELETE ================= */
+  /* ── DELETE ── */
   const deleteCategory = async (cat) => {
     if (!window.confirm(`Delete "${cat.name}"?`)) return;
     try {
@@ -130,7 +131,7 @@ export default function ManageCategories() {
     }
   };
 
-  /* ================= EDIT ================= */
+  /* ── EDIT ── */
   const openEdit = (cat) => {
     setEditingCategory(cat);
     setEditName(cat.name);
@@ -179,18 +180,14 @@ export default function ManageCategories() {
     }
   };
 
-  useEffect(() => {
-    loadCategories();
-  }, []);
-
   return (
-    <div className="gl-admin-container">
+    <div className="admin-layout-container">
       <AdminSidebar active="categories" />
 
-      <main className="gl-main-content">
+      <main className="pl-page gl-main-content">
         <header className="gl-page-header">
-          <span className="gl-meta">// CATEGORY_ARCHIVE_MGMT</span>
-          <h1 className="gl-page-title">MANAGE CATEGORIES</h1>
+          <span className="gl-meta">{"// CATEGORY_ARCHIVE_MGMT"}</span>
+          <h1 className="gl-page-title">{"MANAGE CATEGORIES"}</h1>
         </header>
 
         {/* ADD SECTION */}
@@ -203,7 +200,6 @@ export default function ManageCategories() {
               onChange={(e) => setCategoryName(e.target.value)}
             />
 
-            {/* SELECT DROPDOWN FOR PARENT CATEGORY */}
             <select 
               className="gl-input gl-select"
               value={parentSection}
@@ -223,7 +219,7 @@ export default function ManageCategories() {
             />
 
             <label htmlFor="cat-img" className="gl-upload-label">
-              {categoryImage ? categoryImage.name : <><Upload /> UPLOAD</>}
+              {categoryImage ? categoryImage.name : <><Upload /> {"UPLOAD"}</>}
             </label>
 
             <button
@@ -231,7 +227,7 @@ export default function ManageCategories() {
               onClick={addCategory}
               disabled={loading}
             >
-              {loading ? "PROCESSING..." : <><Plus /> ADD</>}
+              {loading ? "PROCESSING..." : <><Plus /> {"ADD"}</>}
             </button>
           </div>
         </section>
@@ -241,7 +237,7 @@ export default function ManageCategories() {
           {categories.length === 0 ? (
             <div className="gl-empty-state">
               <FolderOpen size={40} />
-              <p>NO_CATEGORIES</p>
+              <p>{"NO_CATEGORIES"}</p>
             </div>
           ) : (
             categories.map((cat) => (
@@ -272,21 +268,21 @@ export default function ManageCategories() {
         <div className="gl-modal-overlay">
           <div className="gl-modal-box">
             <div className="gl-modal-header">
-              <h3>EDIT_CATEGORY</h3>
+              <h3>{"EDIT_CATEGORY"}</h3>
               <button onClick={() => setEditingCategory(null)} className="gl-close-x">
                 <X />
               </button>
             </div>
 
             <div className="gl-modal-body">
-              <label>CATEGORY NAME</label>
+              <label>{"CATEGORY NAME"}</label>
               <input
                 className="gl-input"
                 value={editName}
                 onChange={(e) => setEditName(e.target.value)}
               />
 
-              <label>FOR WHOM?</label>
+              <label>{"FOR WHOM?"}</label>
               <select 
                 className="gl-input"
                 value={editParentSection}
@@ -304,7 +300,7 @@ export default function ManageCategories() {
                 onChange={(e) => setEditImage(e.target.files[0])}
               />
               <label htmlFor="edit-img" className="gl-upload-label">
-                {editImage ? editImage.name : <><ImageIcon /> CHANGE_IMAGE</>}
+                {editImage ? editImage.name : <><ImageIcon /> {"CHANGE_IMAGE"}</>}
               </label>
 
               <button 

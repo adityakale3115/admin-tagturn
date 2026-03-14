@@ -1,6 +1,17 @@
 import React, { useState } from "react";
 import VendorLayout from "../../layout/VendorLayout";
-import { Package, ShoppingCart, DollarSign, TrendingUp, Plus, FileText, Settings, Bell, ArrowUpRight, Moon, Sun } from "lucide-react";
+import { 
+  Package, 
+  ShoppingCart, 
+  DollarSign, 
+  TrendingUp, 
+  Plus, 
+  FileText, 
+  Settings, 
+  ArrowUpRight, 
+  Moon, 
+  Sun 
+} from "lucide-react";
 import "../../styles/Dashboard.css";
 
 const STATS = [
@@ -11,26 +22,29 @@ const STATS = [
 ];
 
 export default function Dashboard() {
-  const [theme, setTheme] = useState('light'); // 'light' or 'dark'
+  const [theme, setTheme] = useState('light');
 
   return (
     <VendorLayout>
-      {/* Dynamic theme class applied here */}
       <div className={`pl-page theme-${theme}`}>
         <div className="dashboard-container">
           
           <header className="dashboard-header">
             <div className="header-info">
-              <h1 className="header-title">Vendor Station</h1>
-              <p className="header-subtitle">System metrics & commercial logs.</p>
+              <h1 className="header-title">{"Vendor Station"}</h1>
+              <p className="header-subtitle">{"System metrics & commercial logs."}</p>
             </div>
             <div className="header-actions">
-              <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+              <button 
+                className="theme-toggle" 
+                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+                aria-label="Toggle Theme"
+              >
                 {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
               </button>
               <button className="primary-btn">
                 <Plus size={18} />
-                <span>New Item</span>
+                <span>{"New Item"}</span>
               </button>
             </div>
           </header>
@@ -50,13 +64,13 @@ export default function Dashboard() {
 
           <div className="dashboard-main-content">
             <section className="activity-section">
-              <div className="section-header"><h2>Live Logs</h2></div>
+              <div className="section-header"><h2>{"Live Logs"}</h2></div>
               <div className="activity-list">
                 <div className="activity-item">
                   <div className="activity-icon"><ShoppingCart size={16}/></div>
                   <div className="activity-info">
-                    <span className="activity-title">Order #8829 Processed</span>
-                    <span className="activity-time">Just now</span>
+                    <span className="activity-title">{"Order #8829 Processed"}</span>
+                    <span className="activity-time">{"Just now"}</span>
                   </div>
                   <ArrowUpRight size={14} className="activity-arrow" />
                 </div>
@@ -64,10 +78,16 @@ export default function Dashboard() {
             </section>
 
             <section className="actions-section">
-              <h2>Quick Actions</h2>
+              <h2>{"Quick Actions"}</h2>
               <div className="actions-grid">
-                <button className="action-btn"><Settings size={20}/><span>Settings</span></button>
-                <button className="action-btn"><FileText size={20}/><span>Reports</span></button>
+                <button className="action-btn">
+                  <Settings size={20}/>
+                  <span>{"Settings"}</span>
+                </button>
+                <button className="action-btn">
+                  <FileText size={20}/>
+                  <span>{"Reports"}</span>
+                </button>
               </div>
             </section>
           </div>

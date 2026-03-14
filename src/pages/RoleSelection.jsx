@@ -33,7 +33,8 @@ export default function RoleSelection() {
             <div className="brand-logo-box-light">
               <LayoutGrid size={32} strokeWidth={1.5} />
             </div>
-            <span className="gallery-tag">// IDENTITY_VERIFICATION</span>
+            {/* Wrapped system text in braces to avoid node errors */}
+            <span className="gallery-tag">{"// IDENTITY_VERIFICATION"}</span>
             <h2 className="role-title-light">CATALOG ACCESS</h2>
             <p className="role-subtitle-light">
               Authenticate your credentials to enter the TagTurn archive.
@@ -63,7 +64,8 @@ export default function RoleSelection() {
 
           <div className="role-footer-gallery">
             <p className="support-text-gallery">
-              CONNECTION_ISSUE? <span className="support-link-gallery">CONTACT_SYSTEM_ADMIN</span>
+              {"CONNECTION_ISSUE? "} 
+              <span className="support-link-gallery">{"CONTACT_SYSTEM_ADMIN"}</span>
             </p>
           </div>
         </div>
