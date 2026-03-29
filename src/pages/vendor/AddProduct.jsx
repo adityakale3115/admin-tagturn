@@ -1,245 +1,312 @@
-import { useState, useRef } from "react";
+import { useState, useEffect } from "react";
+import { 
+  collection, 
+  getDocs, 
+  addDoc, 
+  serverTimestamp 
+} from "firebase/firestore";
+import { 
+  ref, 
+  uploadBytes, 
+  getDownloadURL 
+} from "firebase/storage";
+import { db, storage } from "../../firebase/firebaseConfig";
+import useAuthListener from "../../hooks/useAuthListener";
+import { toast } from "react-toastify";
+import { CheckCircle, Plus, UploadCloud, Loader2 } from "lucide-react";
+import VendorLayout from "../../layout/VendorLayout";
 import "../../styles/AddProduct.css";
-import Sidebar from "../../components/vendor/VendorSidebar"
 
-const SIZES = ["XS", "S", "M", "L", "XL", "XXL", "36", "38", "40", "42"];
-const CATEGORIES = ["", "Tops", "Bottoms", "Outerwear", "Dresses", "Footwear", "Accessories"];
-const CONDITIONS = ["Poor", "Fair", "Good", "Very Good", "Excellent"];
+const SIZES_OPTIONS = ["XS", "S", "M", "L", "XL", "XXL", "36", "38", "40", "42"];
 
-const UploadIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-    <polyline points="17 8 12 3 7 8" />
-    <line x1="12" y1="3" x2="12" y2="15" />
-  </svg>
-);
-
-const PlusIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" strokeWidth="2">
-    <line x1="12" y1="5" x2="12" y2="19" />
-    <line x1="5" y1="12" x2="19" y2="12" />
-  </svg>
-);
-
-const SaveIcon = () => (
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" width="14" height="14" strokeWidth="2.5">
-    <polyline points="20 6 9 17 4 12" />
-  </svg>
-);
+const EMPTY_PRODUCT = {
+  name: "", 
+  category: "", 
+  price: "", 
+  stock: "",
+  sizes: [], 
+  condition: 7,
+  chest: "", 
+  length: "", 
+  waist: "", 
+  gender: "",
+  brand: "", 
+  color: "", 
+  description: "",
+};
 
 export default function AddProduct() {
-  const [selectedSizes, setSelectedSizes] = useState([]);
-  const [condition, setCondition] = useState(4);
-  const [imageSlots, setImageSlots] = useState([null, null, null, null]);
-  const [saving, setSaving] = useState(false);
-  const fileRefs = useRef([]);
+  const user = useAuthListener();
+
+  const [categories, setCategories] = useState([]);
+  const [isUploading, setIsUploading] = useState(false);
+  const [product, setProduct] = useState(EMPTY_PRODUCT);
+  const [images, setImages] = useState([null, null, null, null]);
+
+  /* ── LOAD CATEGORIES ── */
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const snap = await getDocs(collection(db, "categories"));
+        setCategories(snap.docs.map(d => d.data().name));
+      } catch (err) {
+        console.error(err);
+        toast.error("LOG_ERROR: CATEGORY_FETCH_FAILED");
+      }
+    };
+    fetchCategories();
+  }, []);
+
+  const set = (key, val) => setProduct(prev => ({ ...prev, [key]: val }));
 
   const toggleSize = (size) =>
-    setSelectedSizes((prev) =>
-      prev.includes(size) ? prev.filter((s) => s !== size) : [...prev, size]
-    );
+    set("sizes", product.sizes.includes(size)
+      ? product.sizes.filter(s => s !== size)
+      : [...product.sizes, size]);
 
-  const handleFile = (index, file) => {
-    if (!file) return;
-    setImageSlots((prev) => {
-      const next = [...prev];
-      next[index] = file;
-      return next;
-    });
+  const handleImageChange = (index, file) => {
+    if (file && file.size > 2 * 1024 * 1024)
+      return toast.warn("FILE_SIZE_EXCEEDED: MAX 2MB");
+    const updated = [...images];
+    updated[index] = file || null;
+    setImages(updated);
   };
 
-  const addSlot = () => setImageSlots((prev) => [...prev, null]);
+  const addMoreImageField = () => setImages(prev => [...prev, null]);
 
-  const handleSave = async () => {
-    setSaving(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    setSaving(false);
+  /* ── UPLOAD PROTOCOL ── */
+  const uploadProduct = async () => {
+    const validImages = images.filter(Boolean);
+
+    if (!product.name || !product.category || !product.price || !product.stock)
+      return toast.warning("NULL_FIELD: REQUIRED_DATA_MISSING");
+    if (validImages.length === 0)
+      return toast.warning("NULL_FIELD: ASSETS_REQUIRED");
+    if (!user?.uid)
+      return toast.error("AUTH_ERROR: SESSION_EXPIRED");
+
+    setIsUploading(true);
+
+    try {
+      const uploadedImages = [];
+      const imagePaths = [];
+
+      for (const file of validImages) {
+        const path = `products/${user.uid}/${Date.now()}_${file.name}`;
+        const imageRef = ref(storage, path);
+        await uploadBytes(imageRef, file);
+        const url = await getDownloadURL(imageRef);
+        uploadedImages.push(url);
+        imagePaths.push(path);
+      }
+
+      // Final object with Number casting for Security Rules
+      const finalDoc = {
+        name: product.name,
+        category: product.category,
+        brand: product.brand,
+        color: product.color,
+        description: product.description,
+        chest: product.chest,
+        length: product.length,
+        gender: product.gender,
+        sizes: product.sizes,
+        status: "active",
+        price: Number(product.price),
+        stock: Number(product.stock),
+        condition: Number(product.condition),
+        waist: product.waist ? Number(product.waist) : null,
+        shop_id: user.uid,
+        vendor_email: user.email,
+        images: uploadedImages,
+        imagePaths: imagePaths,
+        createdAt: serverTimestamp(),
+      };
+
+      await addDoc(collection(db, "products"), finalDoc);
+
+      toast.success("LOG_SUCCESS: ENTRY_SAVED_TO_ARCHIVE");
+      setProduct(EMPTY_PRODUCT);
+      setImages([null, null, null, null]);
+
+    } catch (error) {
+      console.error(error);
+      toast.error(`SYSTEM_ERROR: ${error.message}`);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   return (
-    <div className="ap-container">
-      <Sidebar />
-      {/* ── HEADER ── */}
-      <header className="ap-header">
-        <span className="ap-meta">Gallery Lab / Inventory</span>
-        <h1 className="ap-title">Add New Product</h1>
-        <p className="ap-subtitle">
-          Fill in the details below to list a new item in your{" "}
-          <span className="ap-accent">collection.</span>
-        </p>
-      </header>
+      <div className="ap-container">
+        
+        <header className="ap-header">
+          <span className="ap-meta">// NEW_ARCHIVE_ENTRY: INITIALIZE_FORM</span>
+          <h1 className="ap-title">ADD NEW PRODUCT</h1>
+          <p className="ap-subtitle">
+            Authenticated: <span className="ap-accent">{user?.email}</span>
+          </p>
+        </header>
 
-      {/* ── FORM GRID ── */}
-      <div className="ap-grid">
-        {/* ── LEFT SECTION ── */}
-        <section className="ap-section">
-          <div className="ap-field">
-            <label className="ap-label">Product Name</label>
-            <input className="ap-input" type="text" placeholder="e.g. Vintage Levi's 501" />
-          </div>
-
-          <div className="ap-field">
-            <label className="ap-label">Description</label>
-            <textarea className="ap-input ap-textarea" placeholder="Describe the item, story, details…" />
-          </div>
-
-          <div className="ap-double">
+        <div className="ap-grid">
+          {/* LEFT SECTION */}
+          <section className="ap-section">
             <div className="ap-field">
-              <label className="ap-label">Category</label>
-              <select className="ap-input ap-select">
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{c || "Select…"}</option>
-                ))}
+              <label className="ap-label">PRODUCT_NAME</label>
+              <input
+                className="ap-input"
+                placeholder="Ex: Vintage 90s Denim"
+                value={product.name}
+                onChange={e => set("name", e.target.value)}
+              />
+            </div>
+
+            <div className="ap-double">
+              <div className="ap-field">
+                <label className="ap-label">CATEGORY</label>
+                <select
+                  className="ap-input ap-select"
+                  value={product.category}
+                  onChange={e => set("category", e.target.value)}
+                >
+                  <option value="">SELECT...</option>
+                  {categories.map((c, i) => (
+                    <option key={i} value={c}>{c}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="ap-field">
+                <label className="ap-label">BRAND</label>
+                <input
+                  className="ap-input"
+                  value={product.brand}
+                  onChange={e => set("brand", e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="ap-triple">
+              <div className="ap-field">
+                <label className="ap-label">PRICE (₹)</label>
+                <input
+                  type="number"
+                  className="ap-input"
+                  value={product.price}
+                  onChange={e => set("price", e.target.value)}
+                />
+              </div>
+              <div className="ap-field">
+                <label className="ap-label">STOCK</label>
+                <input
+                  type="number"
+                  className="ap-input"
+                  value={product.stock}
+                  onChange={e => set("stock", e.target.value)}
+                />
+              </div>
+              <div className="ap-field">
+                <label className="ap-label">WAIST (IN)</label>
+                <div className="ap-tagged">
+                  <input
+                    type="number"
+                    className="ap-input"
+                    value={product.waist}
+                    onChange={e => set("waist", e.target.value)}
+                  />
+                  <span className="ap-tag">IN</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="ap-double">
+               <div className="ap-field">
+                <label className="ap-label">CHEST (IN)</label>
+                <input className="ap-input" value={product.chest} onChange={e => set("chest", e.target.value)} />
+              </div>
+              <div className="ap-field">
+                <label className="ap-label">LENGTH (IN)</label>
+                <input className="ap-input" value={product.length} onChange={e => set("length", e.target.value)} />
+              </div>
+            </div>
+
+            <div className="ap-field">
+              <label className="ap-label">DESCRIPTION</label>
+              <textarea
+                className="ap-input ap-textarea"
+                rows="3"
+                value={product.description}
+                onChange={e => set("description", e.target.value)}
+              />
+            </div>
+          </section>
+
+          {/* RIGHT SECTION */}
+          <section className="ap-section">
+            <div className="ap-field">
+              <label className="ap-label">GENDER</label>
+              <select className="ap-input ap-select" value={product.gender} onChange={e => set("gender", e.target.value)}>
+                <option value="">SELECT...</option>
+                <option value="male">MALE</option>
+                <option value="female">FEMALE</option>
+                <option value="unisex">UNISEX</option>
               </select>
             </div>
-            <div className="ap-field">
-              <label className="ap-label">Brand</label>
-              <input className="ap-input" type="text" placeholder="Brand name" />
-            </div>
-          </div>
 
-          <div className="ap-triple">
             <div className="ap-field">
-              <label className="ap-label">Price</label>
-              <div className="ap-tagged">
-                <input className="ap-input" type="number" placeholder="0" />
-                <span className="ap-tag">₹</span>
+              <label className="ap-label">SIZES</label>
+              <div className="ap-sizes">
+                {SIZES_OPTIONS.map(size => (
+                  <button
+                    key={size} type="button"
+                    className={`ap-size-btn ${product.sizes.includes(size) ? "active" : ""}`}
+                    onClick={() => toggleSize(size)}
+                  >
+                    {size}
+                  </button>
+                ))}
               </div>
             </div>
+
             <div className="ap-field">
-              <label className="ap-label">Compare At</label>
-              <div className="ap-tagged">
-                <input className="ap-input" type="number" placeholder="0" />
-                <span className="ap-tag">₹</span>
+              <label className="ap-label">CONDITION: {product.condition}/10</label>
+              <input
+                type="range" min="1" max="10"
+                className="ap-range"
+                value={product.condition}
+                onChange={e => set("condition", e.target.value)}
+              />
+            </div>
+
+            <div className="ap-field">
+              <label className="ap-label">IMAGES</label>
+              <div className="ap-images">
+                {images.map((file, index) => (
+                  <div key={index} className="ap-slot">
+                    <input
+                      type="file" id={`img-${index}`} hidden accept="image/*"
+                      onChange={e => handleImageChange(index, e.target.files[0])}
+                    />
+                    <label htmlFor={`img-${index}`} className="ap-slot-label">
+                      {file ? <CheckCircle size={16} /> : <UploadCloud size={16} />}
+                    </label>
+                  </div>
+                ))}
+                <button type="button" className="ap-add-slot" onClick={addMoreImageField}><Plus size={14} /></button>
               </div>
             </div>
-            <div className="ap-field">
-              <label className="ap-label">Stock</label>
-              <input className="ap-input" type="number" placeholder="Qty" />
-            </div>
-          </div>
 
-          <div className="ap-double">
-            <div className="ap-field">
-              <label className="ap-label">Weight</label>
-              <div className="ap-tagged">
-                <input className="ap-input" type="number" placeholder="0" />
-                <span className="ap-tag">KG</span>
-              </div>
-            </div>
-            <div className="ap-field">
-              <label className="ap-label">SKU</label>
-              <input className="ap-input" type="text" placeholder="GL-001" />
-            </div>
-          </div>
-
-          <div className="ap-field">
-            <div className="ap-label-row">
-              <label className="ap-label">Condition</label>
-              <span className="ap-badge">{CONDITIONS[condition - 1]}</span>
-            </div>
-            <input
-              className="ap-range"
-              type="range"
-              min="1"
-              max="5"
-              value={condition}
-              onChange={(e) => setCondition(Number(e.target.value))}
-            />
-            <div className="ap-range-labels">
-              {CONDITIONS.map((c) => <span key={c}>{c}</span>)}
-            </div>
-          </div>
-        </section>
-
-        {/* ── RIGHT SECTION ── */}
-        <section className="ap-section">
-          <div className="ap-field">
-            <label className="ap-label">Available Sizes</label>
-            <div className="ap-sizes">
-              {SIZES.map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  className={`ap-size-btn${selectedSizes.includes(s) ? " active" : ""}`}
-                  onClick={() => toggleSize(s)}
-                >
-                  {s}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="ap-field">
-            <div className="ap-label-row">
-              <label className="ap-label">Product Images</label>
-              <span className="ap-count">{imageSlots.filter(Boolean).length} / {imageSlots.length}</span>
-            </div>
-            <div className="ap-images">
-              {imageSlots.map((file, i) => (
-                <label key={i} className={`ap-slot${file ? " has-file" : ""}`}>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    ref={(el) => (fileRefs.current[i] = el)}
-                    onChange={(e) => handleFile(i, e.target.files[0])}
-                  />
-                  {file ? (
-                    <div className="ap-slot-preview">
-                      <img
-                        src={URL.createObjectURL(file)}
-                        alt={file.name}
-                        className="ap-slot-img"
-                      />
-                      <span className="ap-slot-name">{file.name.slice(0, 18)}…</span>
-                    </div>
-                  ) : (
-                    <div className="ap-slot-empty">
-                      <UploadIcon />
-                      <span>Upload</span>
-                    </div>
-                  )}
-                </label>
-              ))}
-
-              <button type="button" className="ap-add-slot" onClick={addSlot}>
-                <PlusIcon /> Add slot
-              </button>
-            </div>
-          </div>
-
-          <div className="ap-double">
-            <div className="ap-field">
-              <label className="ap-label">Color</label>
-              <input className="ap-input" type="text" placeholder="e.g. Indigo Blue" />
-            </div>
-            <div className="ap-field">
-              <label className="ap-label">Material</label>
-              <input className="ap-input" type="text" placeholder="e.g. 100% Cotton" />
-            </div>
-          </div>
-
-          <div className="ap-field">
-            <label className="ap-label">Tags</label>
-            <input className="ap-input" type="text" placeholder="vintage, casual, summer  (comma separated)" />
-          </div>
-
-          <button
-            type="button"
-            className="ap-save"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? (
-              <span className="ap-spinner" />
-            ) : (
-              <SaveIcon />
-            )}
-            <span>{saving ? "Saving…" : "Save Product"}</span>
-          </button>
-        </section>
+            <button
+              className="ap-save"
+              onClick={uploadProduct}
+              disabled={isUploading}
+            >
+              {isUploading ? <Loader2 className="animate-spin" /> : "SAVE_PRODUCT"}
+            </button>
+          </section>
+        </div>
+      
+    <VendorLayout></VendorLayout>
       </div>
-    </div>
+      
   );
 }
