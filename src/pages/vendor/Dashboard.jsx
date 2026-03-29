@@ -25,7 +25,6 @@ export default function Dashboard() {
   const [theme, setTheme] = useState('light');
 
   return (
-    <VendorLayout>
       <div className={`pl-page theme-${theme}`}>
         <div className="dashboard-container">
           
@@ -92,7 +91,8 @@ export default function Dashboard() {
             </section>
           </div>
         </div>
+        
+    <VendorLayout></VendorLayout>
       </div>
-    </VendorLayout>
   );
 }
