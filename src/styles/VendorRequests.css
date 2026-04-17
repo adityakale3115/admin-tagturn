@@ -133,3 +133,13 @@
 }
 
 .text-right { text-align: right; }
+
+.admin-layout-container {
+  display: flex; /* This ensures the sidebar and content sit side-by-side */
+  min-height: 100vh;
+}
+
+.pl-page {
+  flex: 1; /* This tells the table area to take up all remaining space */
+  padding: 20px;
+}
