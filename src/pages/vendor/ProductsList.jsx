@@ -9,6 +9,10 @@ import Sidebar from "../../components/vendor/VendorSidebar";
 import { Trash2, Edit, Package, ShoppingBag, Search, SlidersHorizontal } from "lucide-react";
 import { toast } from "react-toastify";
 import "../../styles/ProductsList.css";
+import { where } from "firebase/firestore";
+
+import { getAuth } from "firebase/auth";
+
 
 export default function ProductsList() {
   const [products, setProducts]        = useState([]);
@@ -19,18 +23,27 @@ export default function ProductsList() {
   const [filterCat, setFilterCat]      = useState("All");
 
   const loadProducts = async () => {
-    try {
-      setLoading(true);
-      const q    = query(collection(db, "products"), orderBy("createdAt", "desc"));
-      const snap = await getDocs(q);
-      setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    } catch (err) {
-      console.error(err);
-      toast.error("Failed to fetch products");
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+
+    const user = getAuth().currentUser;
+
+    const q = query(
+      collection(db, "products"),
+      where("vendor_email", "==", user.email),
+      orderBy("createdAt", "desc")
+    );
+
+    const snap = await getDocs(q);
+    setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+
+  } catch (err) {
+    console.error(err);
+    toast.error("Failed to fetch products");
+  } finally {
+    setLoading(false);
+  }
+};
 
   const deleteProduct = async (product) => {
     if (!window.confirm(`Delete "${product.name}"?`)) return;
