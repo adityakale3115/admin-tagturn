@@ -5,7 +5,7 @@ import { db, storage } from "../../firebase/firebaseConfig";
 import useAuthListener from "../../hooks/useAuthListener";
 import { toast } from "react-toastify";
 import { Camera, MapPin, Phone, Hash, Store, ShieldCheck, Upload } from "lucide-react";
-import VendorLayout from "../../layout/VendorLayout";
+// import VendorLayout from "../../layout/VendorLayout";
 import "../../styles/Profile.css";
 
 export default function Profile() {
@@ -106,7 +106,6 @@ export default function Profile() {
   };
 
   return (
-    <VendorLayout>
       <div className="pl-page">
         <div className="gl-profile-wrapper">
           <header className="gl-v-header">
@@ -198,6 +197,5 @@ export default function Profile() {
           </div>
         </div>
       </div>
-    </VendorLayout>
   );
 }
