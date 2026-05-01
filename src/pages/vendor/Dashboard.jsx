@@ -33,19 +33,7 @@ export default function Dashboard() {
               <h1 className="header-title">{"Vendor Station"}</h1>
               <p className="header-subtitle">{"System metrics & commercial logs."}</p>
             </div>
-            <div className="header-actions">
-              <button 
-                className="theme-toggle" 
-                onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
-                aria-label="Toggle Theme"
-              >
-                {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
-              </button>
-              <button className="primary-btn">
-                <Plus size={18} />
-                <span>{"New Item"}</span>
-              </button>
-            </div>
+            
           </header>
 
           <section className="stats-grid">

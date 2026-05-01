@@ -73,7 +73,7 @@ export default function VendorSidebar() {
             <span>NEW_ENTRY</span>
           </NavLink>
 
-          <NavLink to="/vendor/orders" className={({ isActive }) => isActive ? "gl-v-link active" : "gl-v-link"}>
+          <NavLink to="/vendor/add-product" className={({ isActive }) => isActive ? "gl-v-link active" : "gl-v-link"}>
             <ShoppingCart size={20} strokeWidth={1.5} /> 
             <span>ORDERS</span>
           </NavLink>
@@ -85,17 +85,14 @@ export default function VendorSidebar() {
             <span>PROFILE</span>
           </NavLink>
 
-          <NavLink to="/vendor/settings" className={({ isActive }) => isActive ? "gl-v-link active" : "gl-v-link"}>
-            <Settings size={20} strokeWidth={1.5} /> 
-            <span>SETTINGS</span>
-          </NavLink>
+          
         </nav>
 
         {/* DESKTOP FOOTER SECTION */}
         <div className="gl-v-footer">
           <button className="gl-v-logout-btn" onClick={logout}>
             <LogOut size={16} strokeWidth={1.5} /> 
-            <span>TERMINATE_SESSION</span>
+            <span>Logout</span>
           </button>
         </div>
       </aside>

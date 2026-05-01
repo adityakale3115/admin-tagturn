@@ -122,3 +122,35 @@
     padding: 20px;
   }
 }
+
+.auth-show-password {
+  cursor: pointer;
+  margin-left: 10px;
+  user-select: none;
+}
+
+.auth-input-wrapper {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.auth-input-wrapper input {
+  flex: 1;
+}
+
+.auth-forgot {
+  text-align: right;
+  margin-top: 6px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.auth-forgot span {
+  color: #007bff;
+  cursor: pointer;
+}
+
+.auth-forgot span:hover {
+  text-decoration: underline;
+}

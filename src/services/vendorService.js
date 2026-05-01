@@ -5,6 +5,8 @@ import {
   signOut,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { sendPasswordResetEmail } from "firebase/auth";
+
 
 /* ================= REGISTER VENDOR ================= */
 export const registerVendor = async (email, password, shopName) => {
@@ -67,4 +69,17 @@ export const loginVendor = async (email, password) => {
 /* ================= LOGOUT ================= */
 export const logoutVendor = async () => {
   await signOut(auth);
+};
+
+
+export const forgotPassword = async (email) => {
+  if (!email) {
+    throw { message: "Please enter your email" };
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+  } catch (error) {
+    throw error;
+  }
 };

@@ -24,7 +24,7 @@
   margin-left: var(--sidebar);
   min-height: 100vh;
   padding: 52px 44px 88px;
-  background: var(--cream);
+  /* background: var(--cream); */
   font-family: var(--sans);
   color: var(--ink);
   -webkit-font-smoothing: antialiased;

@@ -1,80 +1,142 @@
 import { useEffect, useState } from "react";
 import {
-  collection, getDocs, deleteDoc, doc, orderBy, query,
+  collection,
+  getDocs,
+  deleteDoc,
+  doc,
+  query,
+  where,
 } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { db, storage } from "../../firebase/firebaseConfig";
 import EditProductModal from "../../components/EditProductModal";
 import Sidebar from "../../components/vendor/VendorSidebar";
-import { Trash2, Edit, Package, ShoppingBag, Search, SlidersHorizontal } from "lucide-react";
+import {
+  Trash2,
+  Edit,
+  Package,
+  ShoppingBag,
+  Search,
+  SlidersHorizontal,
+} from "lucide-react";
 import { toast } from "react-toastify";
 import "../../styles/ProductsList.css";
-import { where } from "firebase/firestore";
 
-import { getAuth } from "firebase/auth";
-
+import { getAuth, onAuthStateChanged } from "firebase/auth";
 
 export default function ProductsList() {
-  const [products, setProducts]        = useState([]);
-  const [loading, setLoading]          = useState(true);
-  const [showModal, setShowModal]      = useState(false);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
   const [selectedProduct, setSelected] = useState(null);
-  const [search, setSearch]            = useState("");
-  const [filterCat, setFilterCat]      = useState("All");
+  const [search, setSearch] = useState("");
+  const [filterCat, setFilterCat] = useState("All");
 
-  const loadProducts = async () => {
-  try {
-    setLoading(true);
+  /* ================= LOAD PRODUCTS ================= */
+  const loadProducts = async (user) => {
+    try {
+      if (!user) return;
 
-    const user = getAuth().currentUser;
+      setLoading(true);
 
-    const q = query(
-      collection(db, "products"),
-      where("vendor_email", "==", user.email),
-      orderBy("createdAt", "desc")
-    );
+      console.log("Logged in user:", user.email);
 
-    const snap = await getDocs(q);
-    setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+      const q = query(
+        collection(db, "products"),
+        where("vendor_email", "==", user.email.toLowerCase())
+      );
 
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch products");
-  } finally {
-    setLoading(false);
-  }
-};
+      const snap = await getDocs(q);
 
+      const data = snap.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+
+      setProducts(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch products");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  /* ================= AUTH LISTENER ================= */
+  useEffect(() => {
+    const auth = getAuth();
+
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        loadProducts(user);
+      } else {
+        console.log("No user logged in");
+        setLoading(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  /* ================= DELETE PRODUCT ================= */
   const deleteProduct = async (product) => {
     if (!window.confirm(`Delete "${product.name}"?`)) return;
+
     try {
-      if (product.imagePaths?.length)
-        for (const path of product.imagePaths) await deleteObject(ref(storage, path));
+      if (product.imagePaths?.length) {
+        for (const path of product.imagePaths) {
+          await deleteObject(ref(storage, path));
+        }
+      }
+
       await deleteDoc(doc(db, "products", product.id));
+
       toast.success("Product deleted");
-      loadProducts();
+
+      const auth = getAuth();
+      loadProducts(auth.currentUser);
     } catch (err) {
       console.error(err);
       toast.error("Failed to delete product");
     }
   };
 
-  const openModal  = (p) => { setSelected(p); setShowModal(true); };
-  const closeModal = (r) => { setShowModal(false); setSelected(null); if (r) loadProducts(); };
+  /* ================= MODAL ================= */
+  const openModal = (p) => {
+    setSelected(p);
+    setShowModal(true);
+  };
 
-  const stockLabel = (s) => s <= 10 ? "LOW"    : s <= 50 ? "MED"    : "OK";
-  const stockMod   = (s) => s <= 10 ? "pl-low" : s <= 50 ? "pl-med" : "pl-ok";
+  const closeModal = (refresh) => {
+    setShowModal(false);
+    setSelected(null);
 
-  const categories = ["All", ...new Set(products.map((p) => p.category).filter(Boolean))];
+    if (refresh) {
+      const auth = getAuth();
+      loadProducts(auth.currentUser);
+    }
+  };
+
+  /* ================= HELPERS ================= */
+  const stockLabel = (s) => (s <= 10 ? "LOW" : s <= 50 ? "MED" : "OK");
+  const stockMod = (s) => (s <= 10 ? "pl-low" : s <= 50 ? "pl-med" : "pl-ok");
+
+  const categories = [
+    "All",
+    ...new Set(products.map((p) => p.category).filter(Boolean)),
+  ];
 
   const filtered = products.filter((p) => {
-    const matchSearch = p.name?.toLowerCase().includes(search.toLowerCase());
-    const matchCat    = filterCat === "All" || p.category === filterCat;
+    const matchSearch = p.name
+      ?.toLowerCase()
+      .includes(search.toLowerCase());
+
+    const matchCat =
+      filterCat === "All" || p.category === filterCat;
+
     return matchSearch && matchCat;
   });
-
-  useEffect(() => { loadProducts(); }, []);
-
+  
   return (
     <div className="pl-shell">
       <Sidebar />

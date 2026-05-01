@@ -51,7 +51,7 @@ export default function AddProduct() {
         setCategories(snap.docs.map(d => d.data().name));
       } catch (err) {
         console.error(err);
-        toast.error("LOG_ERROR: CATEGORY_FETCH_FAILED");
+        toast.error("LOG ERROR: CATEGORY FETCH FAILED");
       }
     };
     fetchCategories();
@@ -66,7 +66,7 @@ export default function AddProduct() {
 
   const handleImageChange = (index, file) => {
     if (file && file.size > 2 * 1024 * 1024)
-      return toast.warn("FILE_SIZE_EXCEEDED: MAX 2MB");
+      return toast.warn("FILE SIZE EXCEEDED: MAX 2MB");
     const updated = [...images];
     updated[index] = file || null;
     setImages(updated);
@@ -79,11 +79,11 @@ export default function AddProduct() {
     const validImages = images.filter(Boolean);
 
     if (!product.name || !product.category || !product.price || !product.stock)
-      return toast.warning("NULL_FIELD: REQUIRED_DATA_MISSING");
+      return toast.warning("NULL FIELD: REQUIRED DATA MISSING");
     if (validImages.length === 0)
-      return toast.warning("NULL_FIELD: ASSETS_REQUIRED");
+      return toast.warning("NULL FIELD: ASSETS REQUIRED");
     if (!user?.uid)
-      return toast.error("AUTH_ERROR: SESSION_EXPIRED");
+      return toast.error("AUTH ERROR: SESSION EXPIRED");
 
     setIsUploading(true);
 
@@ -92,7 +92,7 @@ export default function AddProduct() {
       const imagePaths = [];
 
       for (const file of validImages) {
-        const path = `products/${user.uid}/${Date.now()}_${file.name}`;
+        const path = `products/${user.uid}/${Date.now()} ${file.name}`;
         const imageRef = ref(storage, path);
         await uploadBytes(imageRef, file);
         const url = await getDownloadURL(imageRef);
@@ -125,13 +125,13 @@ export default function AddProduct() {
 
       await addDoc(collection(db, "products"), finalDoc);
 
-      toast.success("LOG_SUCCESS: ENTRY_SAVED_TO_ARCHIVE");
+      toast.success("LOG SUCCESS: ENTRY SAVED TO ARCHIVE");
       setProduct(EMPTY_PRODUCT);
       setImages([null, null, null, null]);
 
     } catch (error) {
       console.error(error);
-      toast.error(`SYSTEM_ERROR: ${error.message}`);
+      toast.error(`SYSTEM ERROR: ${error.message}`);
     } finally {
       setIsUploading(false);
     }
@@ -141,7 +141,7 @@ export default function AddProduct() {
       <div className="ap-container">
         
         <header className="ap-header">
-          <span className="ap-meta">// NEW_ARCHIVE_ENTRY: INITIALIZE_FORM</span>
+          <span className="ap-meta">// NEW ARCHIVE ENTRY: INITIALIZE FORM</span>
           <h1 className="ap-title">ADD NEW PRODUCT</h1>
           <p className="ap-subtitle">
             Authenticated: <span className="ap-accent">{user?.email}</span>
@@ -152,7 +152,7 @@ export default function AddProduct() {
           {/* LEFT SECTION */}
           <section className="ap-section">
             <div className="ap-field">
-              <label className="ap-label">PRODUCT_NAME</label>
+              <label className="ap-label">PRODUCT NAME</label>
               <input
                 className="ap-input"
                 placeholder="Ex: Vintage 90s Denim"
@@ -300,7 +300,7 @@ export default function AddProduct() {
               onClick={uploadProduct}
               disabled={isUploading}
             >
-              {isUploading ? <Loader2 className="animate-spin" /> : "SAVE_PRODUCT"}
+              {isUploading ? <Loader2 className="animate-spin" /> : "SAVE PRODUCT"}
             </button>
           </section>
         </div>

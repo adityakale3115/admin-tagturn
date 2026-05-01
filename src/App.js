@@ -14,6 +14,7 @@ import VendorDashboard from "./pages/vendor/Dashboard";
 import AddProduct from "./pages/vendor/AddProduct";
 import ProductsList from "./pages/vendor/ProductsList";
 import VendorProfile from "./pages/vendor/Profile";
+import ForgotPassword from "./pages/vendor/ForgotPassword";
 
 export default function App() {
   return (
@@ -36,6 +37,7 @@ export default function App() {
           <Route path="/vendor/add-product" element={<AddProduct />} />
           <Route path="/vendor/products" element={<ProductsList />} />
           <Route path="/vendor/profile" element={<VendorProfile />} />
+  <Route path="/vendor/forgot-password" element={<ForgotPassword />} />
        
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
