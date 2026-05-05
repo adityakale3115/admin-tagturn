@@ -22,7 +22,7 @@ export default function VendorSidebar() {
     vendor = null;
   }
 
-  const shopName = vendor?.shopName || "VENDOR_STATION";
+  const shopName = vendor?.shopName || "Vendor Dashboard";
 
   const logout = () => {
     localStorage.removeItem("vendorAuth");
@@ -73,7 +73,7 @@ export default function VendorSidebar() {
             <span>NEW_ENTRY</span>
           </NavLink>
 
-          <NavLink to="/vendor/add-product" className={({ isActive }) => isActive ? "gl-v-link active" : "gl-v-link"}>
+          <NavLink to="/vendor/orders" className={({ isActive }) => isActive ? "gl-v-link active" : "gl-v-link"}>
             <ShoppingCart size={20} strokeWidth={1.5} /> 
             <span>ORDERS</span>
           </NavLink>

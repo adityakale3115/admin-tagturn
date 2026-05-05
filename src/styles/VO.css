@@ -1,0 +1,287 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@400;500&display=swap');
+
+/* ─── Layout ─────────────────────────────────────────────── */
+.vo-wrapper {
+  font-family: 'DM Sans', sans-serif;
+  background: #F7F6F3;
+  min-height: 100vh;
+  padding: 2rem 1.5rem;
+  color: #1A1A18;
+  box-sizing: border-box;
+}
+
+/* ─── Header ──────────────────────────────────────────────── */
+.vo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.vo-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.vo-badge {
+  background: #1A1A18;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-family: 'DM Mono', monospace;
+  white-space: nowrap;
+}
+
+/* ─── Desktop Table ───────────────────────────────────────── */
+.vo-table-wrap {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #E5E3DC;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+.vo-table-wrap table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vo-table-wrap thead {
+  background: #FAF9F6;
+  border-bottom: 1px solid #E5E3DC;
+}
+
+.vo-table-wrap th {
+  padding: 1rem 1.25rem;
+  text-align: left;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888780;
+  font-weight: 600;
+}
+
+.vo-table-wrap td {
+  padding: 1.25rem;
+  border-bottom: 1px solid #F0EDE6;
+  vertical-align: middle;
+}
+
+.vo-table-wrap tr:last-child td {
+  border-bottom: none;
+}
+
+.vo-table-wrap tr:hover td {
+  background: #FAFAF8;
+  transition: background 0.15s ease;
+}
+
+/* ─── Shared Cell Styles ──────────────────────────────────── */
+.order-id {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  background: #F0EDE6;
+  padding: 4px 8px;
+  border-radius: 4px;
+  color: #444;
+  white-space: nowrap;
+}
+
+.product-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.product-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #EEE;
+  flex-shrink: 0;
+}
+
+.product-name {
+  font-weight: 500;
+  display: block;
+  margin-bottom: 2px;
+  font-size: 0.875rem;
+}
+
+.product-meta {
+  font-size: 0.75rem;
+  color: #888780;
+}
+
+.location-address {
+  font-weight: 500;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  color: #1A1A18;
+}
+
+.location-meta {
+  font-size: 0.75rem;
+  color: #888780;
+  margin-top: 4px;
+}
+
+.amount {
+  font-family: 'DM Mono', monospace;
+  font-weight: 600;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+/* ─── Status Badge ────────────────────────────────────────── */
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status.new      { background: #E6F1FB; color: #185FA5; }
+.status.pending  { background: #FEF3C7; color: #92400E; }
+.status.shipped  { background: #D1FAE5; color: #065F46; }
+.status.delivered{ background: #DCFCE7; color: #166534; }
+.status.cancelled{ background: #FEE2E2; color: #991B1B; }
+
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+  flex-shrink: 0;
+}
+
+/* ─── Empty / Loading States ──────────────────────────────── */
+.vo-state-row td {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #888780;
+  font-size: 0.9rem;
+}
+
+/* ─── Mobile Cards ────────────────────────────────────────── */
+.vo-cards {
+  display: none;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vo-card {
+  background: #fff;
+  border-radius: 12px;
+  border: 1px solid #E5E3DC;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.vo-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.vo-card-product {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.vo-card-product-info {
+  min-width: 0;
+}
+
+.vo-card-product-info .product-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vo-card-divider {
+  border: none;
+  border-top: 1px solid #F0EDE6;
+  margin: 0;
+}
+
+.vo-card-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem 1rem;
+}
+
+.vo-card-detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vo-card-detail-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #888780;
+  font-weight: 600;
+}
+
+.vo-card-detail-value {
+  font-size: 0.82rem;
+  color: #1A1A18;
+  line-height: 1.4;
+}
+
+.vo-card-detail-value.mono {
+  font-family: 'DM Mono', monospace;
+  font-weight: 600;
+}
+
+.vo-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ─── Responsive Breakpoints ──────────────────────────────── */
+@media (max-width: 900px) {
+  .vo-table-wrap th:nth-child(3),
+  .vo-table-wrap td:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .vo-wrapper {
+    padding: 1.25rem 1rem;
+  }
+
+  .vo-title {
+    font-size: 1.4rem;
+  }
+
+  .vo-table-wrap {
+    display: none;
+  }
+
+  .vo-cards {
+    display: flex;
+  }
+}
