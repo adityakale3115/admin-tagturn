@@ -6,10 +6,12 @@ import {
   doc,
   query,
   where,
+  setDoc,
 } from "firebase/firestore";
 import { ref, deleteObject } from "firebase/storage";
 import { db, storage } from "../../firebase/firebaseConfig";
 import EditProductModal from "../../components/EditProductModal";
+import { updateDoc } from "firebase/firestore";
 import Sidebar from "../../components/vendor/VendorSidebar";
 import {
   Trash2,
@@ -31,6 +33,28 @@ export default function ProductsList() {
   const [selectedProduct, setSelected] = useState(null);
   const [search, setSearch] = useState("");
   const [filterCat, setFilterCat] = useState("All");
+
+  const markAsSold = async (product) => {
+  if (!window.confirm(`It will be Mark as Sold "${product.name}"?`)) return;
+
+    try {
+      if (product.imagePaths?.length) {
+        for (const path of product.imagePaths) {
+          await deleteObject(ref(storage, path));
+        }
+      }
+
+      await deleteDoc(doc(db, "products", product.id));
+
+      toast.success("Product solded");
+
+      const auth = getAuth();
+      loadProducts(auth.currentUser);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete product");
+    }
+};
 
   /* ================= LOAD PRODUCTS ================= */
   const loadProducts = async (user) => {
@@ -267,6 +291,12 @@ export default function ProductsList() {
                           <button className="pl-btn pl-edit" onClick={() => openModal(p)}>
                             <Edit size={12} strokeWidth={2} /> Edit
                           </button>
+                          <button
+  className="pl-btn pl-sold"
+  onClick={() => markAsSold(p)}
+>
+  Sold
+</button>
                           <button className="pl-btn pl-del" onClick={() => deleteProduct(p)}>
                             <Trash2 size={12} strokeWidth={2} />
                           </button>
@@ -315,6 +345,12 @@ export default function ProductsList() {
                       <button className="pl-btn pl-edit pl-btn-full" onClick={() => openModal(p)}>
                         <Edit size={12} strokeWidth={2} /> Edit
                       </button>
+                      <button
+  className="pl-btn pl-sold"
+  onClick={() => markAsSold(p)}
+>
+  Sold
+</button>
                       <button className="pl-btn pl-del" onClick={() => deleteProduct(p)}>
                         <Trash2 size={12} strokeWidth={2} />
                       </button>

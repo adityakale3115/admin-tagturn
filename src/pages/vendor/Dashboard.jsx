@@ -1,86 +1,153 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import VendorLayout from "../../layout/VendorLayout";
-import { 
-  Package, 
-  ShoppingCart, 
-  DollarSign, 
-  TrendingUp, 
-  Plus, 
-  FileText, 
-  Settings, 
-  ArrowUpRight, 
-  Moon, 
-  Sun 
+import {
+  Package,
+  DollarSign,
+  FileText,
+  Settings,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import "../../styles/Dashboard.css";
 
-const STATS = [
-  { icon: Package,      value: "248",    label: "Total Products", trend: "+12%", isPos: true  },
-  { icon: ShoppingCart, value: "1,284",  label: "Order Volume",   trend: "+23%", isPos: true  },
-  { icon: DollarSign,   value: "₹45,280",label: "Gross Revenue",  trend: "+18%", isPos: true  },
-  { icon: TrendingUp,   value: "4.8",    label: "Avg. Rating",    trend: "-5%",  isPos: false },
-];
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+} from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { db } from "../../firebase/firebaseConfig";
 
 export default function Dashboard() {
-  const [theme, setTheme] = useState('light');
+  const navigate = useNavigate();
+
+  const [theme, setTheme] = useState("light");
+  const [totalProducts, setTotalProducts] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const auth = getAuth();
+        const user = auth.currentUser;
+
+        if (!user) return;
+
+        // Fetch total products
+        const productQuery = query(
+          collection(db, "products"),
+          where("shop_id", "==", user.uid)
+        );
+
+        const productSnapshot = await getDocs(productQuery);
+        setTotalProducts(productSnapshot.size);
+
+        // Fetch vendor orders for revenue
+        const orderQuery = query(
+          collection(db, "vendorOrders"),
+          where("vendorId", "==", user.uid)
+        );
+
+        const orderSnapshot = await getDocs(orderQuery);
+
+        let revenue = 0;
+
+        orderSnapshot.forEach((doc) => {
+          const data = doc.data();
+
+          // Ignore cancelled orders if desired
+          if (data.status !== "cancelled") {
+            revenue += Number(data.totalAmount || 0);
+          }
+        });
+
+        setTotalRevenue(revenue);
+      } catch (error) {
+        console.error("Dashboard fetch error:", error);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
+
+  const STATS = [
+    {
+      icon: Package,
+      value: totalProducts,
+      label: "Total Products",
+      trend: "+0%",
+      isPos: true,
+    },
+    {
+      icon: DollarSign,
+      value: `₹${totalRevenue.toLocaleString()}`,
+      label: "Gross Revenue",
+      trend: "+0%",
+      isPos: true,
+    },
+  ];
 
   return (
-      <div className={`pl-page theme-${theme}`}>
-        <div className="dashboard-container">
-          
-          <header className="dashboard-header">
-            <div className="header-info">
-              <h1 className="header-title">{"Vendor Station"}</h1>
-              <p className="header-subtitle">{"System metrics & commercial logs."}</p>
-            </div>
-            
-          </header>
-
-          <section className="stats-grid">
-            {STATS.map((stat, i) => (
-              <div className="stat-card" key={i}>
-                <div className="stat-header">
-                  <div className="stat-icon-wrapper"><stat.icon size={20} /></div>
-                  <span className={`trend-badge ${stat.isPos ? "pos" : "neg"}`}>{stat.trend}</span>
-                </div>
-                <h3 className="stat-value">{stat.value}</h3>
-                <p className="stat-label">{stat.label}</p>
-              </div>
-            ))}
-          </section>
-
-          <div className="dashboard-main-content">
-            <section className="activity-section">
-              <div className="section-header"><h2>{"Live Logs"}</h2></div>
-              <div className="activity-list">
-                <div className="activity-item">
-                  <div className="activity-icon"><ShoppingCart size={16}/></div>
-                  <div className="activity-info">
-                    <span className="activity-title">{"Order #8829 Processed"}</span>
-                    <span className="activity-time">{"Just now"}</span>
-                  </div>
-                  <ArrowUpRight size={14} className="activity-arrow" />
-                </div>
-              </div>
-            </section>
-
-            <section className="actions-section">
-              <h2>{"Quick Actions"}</h2>
-              <div className="actions-grid">
-                <button className="action-btn">
-                  <Settings size={20}/>
-                  <span>{"Settings"}</span>
-                </button>
-                <button className="action-btn">
-                  <FileText size={20}/>
-                  <span>{"Reports"}</span>
-                </button>
-              </div>
-            </section>
+    <div className={`pl-page theme-${theme}`}>
+      <div className="dashboard-container">
+        <header className="dashboard-header">
+          <div className="header-info">
+            <h1 className="header-title">Vendor Station</h1>
+            <p className="header-subtitle">
+              System metrics & commercial logs.
+            </p>
           </div>
+        </header>
+
+        <section className="stats-grid">
+          {STATS.map((stat, i) => (
+            <div className="stat-card" key={i}>
+              <div className="stat-header">
+                <div className="stat-icon-wrapper">
+                  <stat.icon size={20} />
+                </div>
+
+                <span
+                  className={`trend-badge ${
+                    stat.isPos ? "pos" : "neg"
+                  }`}
+                >
+                  {stat.trend}
+                </span>
+              </div>
+
+              <h3 className="stat-value">{stat.value}</h3>
+              <p className="stat-label">{stat.label}</p>
+            </div>
+          ))}
+        </section>
+
+        <div className="dashboard-main-content">
+          <section className="actions-section">
+            <h2>Quick Actions</h2>
+
+            <div className="actions-grid">
+              <button
+                className="action-btn"
+                onClick={() => navigate("/vendor/profile")}
+              >
+                <Settings size={20} />
+                <span>Settings</span>
+              </button>
+
+              <button
+                className="action-btn"
+                onClick={() => navigate("/vendor/products")}
+              >
+                <FileText size={20} />
+                <span>Products</span>
+              </button>
+            </div>
+          </section>
         </div>
-        
-    <VendorLayout></VendorLayout>
       </div>
+
+      <VendorLayout />
+    </div>
   );
 }
