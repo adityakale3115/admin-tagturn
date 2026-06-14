@@ -67,6 +67,22 @@ export default function AdminSidebar({ active }) {
             <FolderPlus size={18} strokeWidth={1.5} />
             <span className="gl-nav-label">CATEGORIES</span>
           </div>
+
+          <div
+            className={`gl-nav-item ${active === "categories" ? "active" : ""}`}
+            onClick={() => navigate("/admin/listings")}
+          >
+            <FolderPlus size={18} strokeWidth={1.5} />
+            <span className="gl-nav-label">Admin Listing</span>
+          </div>
+
+          <div
+            className={`gl-nav-item ${active === "categories" ? "active" : ""}`}
+            onClick={() => navigate("/admin/users")}
+          >
+            <FolderPlus size={18} strokeWidth={1.5} />
+            <span className="gl-nav-label">All Users</span>
+          </div>
         </nav>
       </div>
 

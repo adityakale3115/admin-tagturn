@@ -3,9 +3,11 @@ import RoleSelection from "./pages/RoleSelection";
 
 // ADMIN
 import AdminLogin from "./pages/admin/Login";
+import AdminListing from "./pages/admin/AdminListings"
 import AdminDashboard from "./pages/admin/Dashboard";
 import VendorRequests from "./pages/admin/VendorRequests";
 import ManageCategories from "./pages/admin/ManageCategories";
+import AdminUsers from "./pages/admin/AdminUsers";
 
 // VENDOR
 import VendorLogin from "./pages/vendor/Login";
@@ -29,6 +31,12 @@ export default function App() {
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
           <Route path="/admin/vendor-requests" element={<VendorRequests />} />
           <Route path="/admin/categories" element={<ManageCategories />} />
+       <Route path="/admin/listings" element={<AdminListing />} />
+       <Route
+  path="/admin/users"
+  element={<AdminUsers />}
+/>
+      
      
 
         {/* VENDOR */}
