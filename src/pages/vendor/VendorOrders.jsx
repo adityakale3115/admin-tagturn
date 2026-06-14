@@ -45,6 +45,85 @@ export default function VendorOrders() {
     </span>
   );
 
+  const printInvoice = (order) => {
+  const user = order.userInfo || {};
+  const items = order.items || [];
+
+  const invoiceWindow = window.open("", "_blank");
+
+  invoiceWindow.document.write(`
+    <html>
+      <head>
+        <title>Invoice ${order.orderId}</title>
+        <style>
+          body {
+            font-family: Arial;
+            padding: 30px;
+          }
+
+          h1 {
+            text-align: center;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+          }
+
+          th, td {
+            border: 1px solid #ddd;
+            padding: 10px;
+          }
+
+          th {
+            background: #f5f5f5;
+          }
+        </style>
+      </head>
+
+      <body>
+        <h1>INVOICE</h1>
+
+        <p><b>Order ID:</b> ${order.orderId}</p>
+        <p><b>Customer:</b> ${user.name || ""}</p>
+        <p><b>Mobile:</b> ${user.mobile || ""}</p>
+        <p><b>Address:</b> ${user.address || ""}</p>
+
+        <table>
+          <tr>
+            <th>Product</th>
+            <th>Size</th>
+            <th>Qty</th>
+            <th>Price</th>
+          </tr>
+
+          ${items
+            .map(
+              (item) => `
+            <tr>
+              <td>${item.name}</td>
+              <td>${item.size || "-"}</td>
+              <td>${item.quantity}</td>
+              <td>₹${item.price}</td>
+            </tr>
+          `
+            )
+            .join("")}
+        </table>
+
+        <h2 style="text-align:right">
+          Total: ₹${order.totalAmount}
+        </h2>
+
+      </body>
+    </html>
+  `);
+
+  invoiceWindow.document.close();
+  invoiceWindow.print();
+};
+
   return (
       <div className="vo-wrapper">
         {/* ── Header ── */}
@@ -117,7 +196,18 @@ export default function VendorOrders() {
                       <td>
                         <span className="amount">₹{order.totalAmount}</span>
                       </td>
-                      <td>{renderStatusBadge(order.status)}</td>
+                      <td>
+  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+    {renderStatusBadge(order.status)}
+
+    <button
+      className="invoice-btn"
+      onClick={() => printInvoice(order)}
+    >
+      Invoice
+    </button>
+  </div>
+</td>
                     </tr>
                   );
                 })
@@ -159,6 +249,12 @@ export default function VendorOrders() {
                       </div>
                     </div>
                     {renderStatusBadge(order.status)}
+                    <button
+  className="invoice-btn"
+  onClick={() => printInvoice(order)}
+>
+  Print Invoice
+</button>
                   </div>
 
                   <hr className="vo-card-divider" />

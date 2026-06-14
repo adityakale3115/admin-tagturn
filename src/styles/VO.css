@@ -285,3 +285,17 @@
     display: flex;
   }
 }
+
+.invoice-btn {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.invoice-btn:hover {
+  background: #1d4ed8;
+}
