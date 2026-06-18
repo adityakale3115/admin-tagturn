@@ -1,5 +1,13 @@
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs, orderBy } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  orderBy,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
 import { auth, db } from "../../firebase/firebaseConfig";
 import VendorLayout from "../../layout/VendorLayout";
 import "../../../src/styles/VO.css";
@@ -44,6 +52,56 @@ export default function VendorOrders() {
         : "New"}
     </span>
   );
+
+  const markAsDelivered = async (order) => {
+  try {
+    // Update vendor order
+    await updateDoc(
+      doc(db, "vendorOrders", order.id),
+      {
+        status: "delivered",
+      }
+    );
+
+    // Find matching customer order
+    const q = query(
+      collection(db, "orders"),
+      where("orderId", "==", order.orderId)
+    );
+
+    const snap = await getDocs(q);
+
+    if (snap.empty) {
+      console.warn(
+        "No matching order found in orders collection:",
+        order.orderId
+      );
+    }
+
+    for (const orderDoc of snap.docs) {
+      await updateDoc(
+        doc(db, "orders", orderDoc.id),
+        {
+          deliveryStatus: "delivered",
+        }
+      );
+    }
+
+    // Update local UI immediately
+    setOrders((prev) =>
+      prev.map((o) =>
+        o.id === order.id
+          ? { ...o, status: "delivered" }
+          : o
+      )
+    );
+
+    alert("Order marked as delivered");
+  } catch (err) {
+    console.error("Delivery Update Error:", err);
+    alert("Failed to update order");
+  }
+};
 
   const printInvoice = (order) => {
   const user = order.userInfo || {};
@@ -193,11 +251,12 @@ export default function VendorOrders() {
                           👤 {user.name || "Unknown Customer"}
                         </div>
                       </td>
+                      
                       <td>
                         <span className="amount">₹{order.totalAmount}</span>
                       </td>
                       <td>
-  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+  <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
     {renderStatusBadge(order.status)}
 
     <button
@@ -206,6 +265,15 @@ export default function VendorOrders() {
     >
       Invoice
     </button>
+
+    {order.status !== "delivered" && (
+      <button
+        className="deliver-btn"
+        onClick={() => markAsDelivered(order)}
+      >
+        Deliver
+      </button>
+    )}
   </div>
 </td>
                     </tr>
@@ -255,6 +323,14 @@ export default function VendorOrders() {
 >
   Print Invoice
 </button>
+{order.status !== "delivered" && (
+  <button
+    className="deliver-btn"
+    onClick={() => markAsDelivered(order)}
+  >
+    Mark Delivered
+  </button>
+)}
                   </div>
 
                   <hr className="vo-card-divider" />

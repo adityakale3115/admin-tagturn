@@ -10,6 +10,20 @@
   box-sizing: border-box;
 }
 
+.deliver-btn {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.deliver-btn:hover {
+  background: #15803d;
+}
+
 /* ─── Header ──────────────────────────────────────────────── */
 .vo-header {
   display: flex;
