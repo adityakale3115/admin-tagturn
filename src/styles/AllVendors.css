@@ -1,0 +1,380 @@
+/* ═══════════════════════════════════════════════════════════
+   AllVendors.css  —  Light theme, clean card layout
+   ═══════════════════════════════════════════════════════════ */
+
+.vl-main {
+  background: #f5f7fa !important;
+  min-height: 100vh;
+}
+
+/* ── Page Header ──────────────────────────────────────────── */
+.vl-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.vl-title {
+  font-size: 26px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 4px 0;
+  letter-spacing: -0.5px;
+}
+
+.vl-subtitle {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.vl-header-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vl-count-pill {
+  background: #e0e7ff;
+  color: #4338ca;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 999px;
+}
+
+/* ── Stat Cards ───────────────────────────────────────────── */
+.vl-stats {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+}
+
+.vl-stat-card {
+  flex: 1;
+  min-width: 140px;
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px 22px 16px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  border: 1px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+}
+
+.vl-stat-num {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 6px;
+}
+
+.vl-stat-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.vl-stat-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--accent);
+  opacity: 0.4;
+  border-radius: 0 0 14px 14px;
+}
+
+/* ── Toolbar ──────────────────────────────────────────────── */
+.vl-toolbar {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.vl-search-wrap {
+  flex: 1;
+  min-width: 240px;
+  position: relative;
+}
+
+.vl-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+  pointer-events: none;
+}
+
+.vl-search {
+  width: 100%;
+  padding: 10px 14px 10px 38px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #111827;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.vl-search:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+}
+
+.vl-filter {
+  padding: 10px 14px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  color: #374151;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.vl-filter:focus { border-color: #6366f1; }
+
+/* ── Vendor Cards ─────────────────────────────────────────── */
+.vl-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.vl-card {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.vl-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.vl-card-open  { border-color: #6366f1; box-shadow: 0 4px 20px rgba(99,102,241,0.1); }
+
+/* ── Card Top Row ─────────────────────────────────────────── */
+.vl-card-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  flex-wrap: wrap;
+}
+
+/* Avatar */
+.vl-avatar-wrap { flex-shrink: 0; }
+
+.vl-logo {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+}
+
+.vl-avatar-fallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  color: #fff;
+  font-size: 22px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Info */
+.vl-card-info { flex: 1; min-width: 0; }
+
+.vl-shop-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vl-email {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+.vl-meta-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.vl-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  background: #f3f4f6;
+  color: #374151;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Right col */
+.vl-card-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.vl-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Status badges */
+.vbadge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.vbadge-approved { background: #dcfce7; color: #15803d; }
+.vbadge-pending  { background: #fef9c3; color: #92400e; }
+.vbadge-rejected { background: #fee2e2; color: #b91c1c; }
+
+/* Status select */
+.vl-status-select {
+  padding: 7px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 13px;
+  color: #374151;
+  background: #f9fafb;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.vl-status-select:focus { border-color: #6366f1; }
+
+.vl-expand-btn {
+  padding: 7px 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6366f1;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.vl-expand-btn:hover { background: #eef2ff; border-color: #6366f1; }
+
+/* ── Expand Panel ─────────────────────────────────────────── */
+.vl-expand {
+  padding: 20px 24px;
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+}
+
+.vl-expand-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.vl-detail-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vl-detail-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #9ca3af;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+.vl-detail-val {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.vl-mono {
+  font-family: "Courier New", monospace;
+  font-size: 12px;
+  color: #6366f1;
+}
+
+/* Banner */
+.vl-banner-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vl-banner {
+  width: 100%;
+  max-height: 160px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+/* ── Empty state ──────────────────────────────────────────── */
+.vl-empty {
+  text-align: center;
+  padding: 60px 0;
+  color: #9ca3af;
+  font-size: 15px;
+}
+
+/* ── Footer ───────────────────────────────────────────────── */
+.vl-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #9ca3af;
+  padding-top: 8px;
+  border-top: 1px solid #e5e7eb;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Responsive ───────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .vl-card-top    { flex-direction: column; align-items: flex-start; }
+  .vl-card-right  { align-items: flex-start; }
+  .vl-stat-card   { min-width: calc(50% - 8px); }
+}

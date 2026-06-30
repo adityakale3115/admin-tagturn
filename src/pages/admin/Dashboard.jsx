@@ -15,6 +15,9 @@ import {
   getDocs,
   query,
   where,
+  doc,
+  getDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/firebaseConfig";
 
@@ -26,6 +29,9 @@ export default function AdminDashboard() {
   const [totalListings, setTotalListings] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [loading, setLoading] = useState(true);
+
+  const [devModeActive, setDevModeActive] = useState(false);
+  const [togglingDevMode, setTogglingDevMode] = useState(false);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -77,8 +83,8 @@ export default function AdminDashboard() {
 
         let revenue = 0;
 
-        ordersSnap.forEach((doc) => {
-          const data = doc.data();
+        ordersSnap.forEach((d) => {
+          const data = d.data();
 
           if (data.status !== "cancelled") {
             revenue += Number(data.totalAmount || 0);
@@ -86,6 +92,12 @@ export default function AdminDashboard() {
         });
 
         setTotalRevenue(revenue);
+
+        // ===== CURRENT DEV MODE STATE =====
+        const settingsSnap = await getDoc(doc(db, "settings", "siteConfig"));
+        if (settingsSnap.exists()) {
+          setDevModeActive(!!settingsSnap.data().showDevPage);
+        }
       } catch (error) {
         console.error("Dashboard Error:", error);
       } finally {
@@ -95,6 +107,24 @@ export default function AdminDashboard() {
 
     fetchStats();
   }, []);
+
+  const handleToggleDevMode = async () => {
+    setTogglingDevMode(true);
+    const next = !devModeActive;
+    try {
+      await setDoc(
+        doc(db, "settings", "siteConfig"),
+        { showDevPage: next, updatedAt: new Date() },
+        { merge: true }
+      );
+      setDevModeActive(next);
+    } catch (err) {
+      console.error("Failed to toggle dev mode:", err);
+      alert("Failed to update site status.");
+    } finally {
+      setTogglingDevMode(false);
+    }
+  };
 
   return (
     <div className="admin-container">
@@ -223,6 +253,29 @@ export default function AdminDashboard() {
               TOTAL REVENUE
             </p>
           </div>
+        </div>
+
+        {/* ── Dev Mode Toggle ── */}
+        <div className="dev-mode-card">
+          <div>
+            <p className="dev-mode-title">Site Maintenance / Dev Page</p>
+            <p className="dev-mode-desc">
+              {devModeActive
+                ? "The public site is currently showing the Contact Developer page."
+                : "The public site is currently live and operational."}
+            </p>
+          </div>
+          <button
+            className={`dev-mode-btn ${devModeActive ? "dev-mode-btn-active" : ""}`}
+            onClick={handleToggleDevMode}
+            disabled={togglingDevMode}
+          >
+            {togglingDevMode
+              ? "Updating…"
+              : devModeActive
+              ? "Turn Off Dev Page"
+              : "Show Dev Page"}
+          </button>
         </div>
 
         <div className="dashboard-footer-line">

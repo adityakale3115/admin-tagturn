@@ -1,0 +1,260 @@
+/* ── Layout ── */
+.eq-main {
+  padding: 2rem;
+  background: #f8fafc;
+  min-height: 100vh;
+}
+
+.eq-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.eq-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 0.25rem;
+}
+
+.eq-subtitle {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.eq-header-meta {
+  display: flex;
+  align-items: center;
+}
+
+.eq-count-pill {
+  background: #eef2ff;
+  color: #4338ca;
+  font-weight: 600;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+  border-radius: 999px;
+}
+
+/* ── Stat Cards ── */
+.eq-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.eq-stat-card {
+  background: var(--accent-bg, #fff);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 14px;
+  padding: 1rem 1.1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.eq-stat-num {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent, #0f172a);
+}
+
+.eq-stat-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 0.2rem;
+}
+
+.eq-stat-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--accent, #6366f1);
+  opacity: 0.7;
+}
+
+/* ── Toolbar ── */
+.eq-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+
+.eq-search-wrap {
+  position: relative;
+  flex: 1;
+  min-width: 220px;
+}
+
+.eq-search-icon {
+  position: absolute;
+  left: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #94a3b8;
+}
+
+.eq-search {
+  width: 100%;
+  padding: 0.6rem 0.9rem 0.6rem 2.2rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.88rem;
+  outline: none;
+  background: #fff;
+}
+
+.eq-search:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.12);
+}
+
+.eq-filter {
+  padding: 0.6rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  font-size: 0.85rem;
+  background: #fff;
+  color: #334155;
+  outline: none;
+}
+
+.eq-toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.eq-action-btn {
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #334155;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.eq-action-btn:hover:not(:disabled) {
+  background: #f1f5f9;
+}
+
+.eq-action-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.eq-action-primary {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+.eq-action-primary:hover:not(:disabled) {
+  background: #4f46e5;
+}
+
+/* ── Table ── */
+.eq-table-wrap {
+  background: #fff;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.eq-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.eq-table thead th {
+  text-align: left;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #94a3b8;
+  background: #f8fafc;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.eq-table tbody td {
+  padding: 0.75rem 1rem;
+  font-size: 0.88rem;
+  color: #334155;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.eq-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.eq-table tbody tr:hover {
+  background: #f8fafc;
+}
+
+.eq-row-num {
+  color: #94a3b8;
+  width: 40px;
+}
+
+.eq-email-cell {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.eq-time {
+  color: #94a3b8;
+}
+
+/* ── Badges ── */
+.eqbadge {
+  display: inline-block;
+  padding: 0.25rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.eqbadge-newsletter {
+  background: #eef2ff;
+  color: #4338ca;
+}
+
+.eqbadge-contact {
+  background: #f0fdf4;
+  color: #16a34a;
+}
+
+.eqbadge-other {
+  background: #f1f5f9;
+  color: #475569;
+}
+
+/* ── Empty / Footer ── */
+.eq-empty {
+  text-align: center;
+  padding: 3rem 0;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.eq-footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}

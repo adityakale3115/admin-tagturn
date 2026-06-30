@@ -8,6 +8,7 @@ import AdminDashboard from "./pages/admin/Dashboard";
 import VendorRequests from "./pages/admin/VendorRequests";
 import ManageCategories from "./pages/admin/ManageCategories";
 import AdminUsers from "./pages/admin/AdminUsers";
+import AllOrders from "./pages/admin/AllOrders"
 
 // VENDOR
 import VendorLogin from "./pages/vendor/Login";
@@ -20,6 +21,8 @@ import ForgotPassword from "./pages/vendor/ForgotPassword";
 import VendorOrders from "./pages/vendor/VendorOrders"
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import AllVendors from "./pages/admin/AllVendors";
+import AllEnquiries from "./pages/admin/Allenquiries ";
 
 export default function App() {
   return (
@@ -42,6 +45,9 @@ export default function App() {
         <Route path="/admin/categories" element={<ManageCategories />} />
         <Route path="/admin/listings" element={<AdminListing />} />
         <Route path="/admin/users" element={<AdminUsers />} />
+        <Route path="/admin/allorders" element={<AllOrders />} />
+        <Route path="/admin/allvendors" element={<AllVendors />} />
+        <Route path="/admin/enquiry" element={<AllEnquiries />} />
 
         {/* VENDOR */}
         <Route path="/vendor/login" element={<VendorLogin />} />

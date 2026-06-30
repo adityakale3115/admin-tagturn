@@ -58,11 +58,6 @@ export default function AdminSidebar({ active }) {
 
     
 
-          <div className="gl-nav-item">
-            <UserCheck size={18} strokeWidth={1.5} />
-            <span className="gl-nav-label">VERIFIED_LIST</span>
-          </div>
-
           <div
             className={`gl-nav-item ${active === "categories" ? "active" : ""}`}
             onClick={() => navigate("/admin/categories")}
@@ -83,8 +78,24 @@ export default function AdminSidebar({ active }) {
             className={`gl-nav-item`}
             onClick={() => navigate("/admin/users")}
           >
-            <FolderPlus size={18} strokeWidth={1.5} />
+            <UserCheck size={18} strokeWidth={1.5} />
             <span className="gl-nav-label">All Users</span>
+          </div>
+
+          <div
+            className={`gl-nav-item`}
+            onClick={() => navigate("/admin/allorders")}
+          >
+            <FolderPlus size={18} strokeWidth={1.5} />
+            <span className="gl-nav-label">All Orders</span>
+          </div>
+
+          <div
+            className={`gl-nav-item`}
+            onClick={() => navigate("/admin/enquiry")}
+          >
+            <FolderPlus size={18} strokeWidth={1.5} />
+            <span className="gl-nav-label">Enquiry</span>
           </div>
         </nav>
       </div>

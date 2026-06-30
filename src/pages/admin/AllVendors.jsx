@@ -6,7 +6,6 @@ import "../../styles/AllVendors.css";
 
 export default function AllVendors() {
   const [vendors,      setVendors]      = useState([]);
-  const [orders,       setOrders]       = useState([]);
   const [loading,      setLoading]      = useState(true);
   const [search,       setSearch]       = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -14,27 +13,19 @@ export default function AllVendors() {
   const [expandedId,   setExpandedId]   = useState(null);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchVendors = async () => {
       try {
-        const [vendorSnap, orderSnap] = await Promise.all([
-          getDocs(collection(db, "vendors")),
-          getDocs(collection(db, "vendorOrders")),
-        ]);
-
-        const vendorData = vendorSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-        vendorData.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
-
-        const orderData = orderSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
-
-        setVendors(vendorData);
-        setOrders(orderData);
+        const snap = await getDocs(collection(db, "vendors"));
+        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+        setVendors(data);
       } catch (err) {
-        console.error("Failed to fetch vendors/orders:", err);
+        console.error("Failed to fetch vendors:", err);
       } finally {
         setLoading(false);
       }
     };
-    fetchData();
+    fetchVendors();
   }, []);
 
   const handleStatusChange = async (vendorId, newStatus) => {
@@ -59,55 +50,6 @@ export default function AllVendors() {
     const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
     return d.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
   };
-
-  const formatCurrency = (n) =>
-    `₹${(n || 0).toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
-
-  // ── Build per-vendor order/revenue stats ──
-  // Each "vendorOrders" doc represents one customer order and may contain items
-  // from multiple vendors inside its `items` array. We attribute revenue/order
-  // counts to each vendor based on the items that belong to them.
-  const vendorOrderMap = orders.reduce((acc, o) => {
-    const items = Array.isArray(o.items) ? o.items : [];
-    const isCancelled = (o.status || "").toLowerCase() === "cancelled";
-
-    // Group this order's items by vendor (handles multi-vendor orders)
-    const itemsByVendor = items.reduce((g, item) => {
-      const vId = item.vendorId;
-      if (!vId) return g;
-      if (!g[vId]) g[vId] = [];
-      g[vId].push(item);
-      return g;
-    }, {});
-
-    Object.entries(itemsByVendor).forEach(([vId, vItems]) => {
-      const vendorAmount = vItems.reduce(
-        (sum, it) => sum + Number(it.price || 0) * Number(it.quantity || 1),
-        0
-      );
-
-      if (!acc[vId]) acc[vId] = { orderCount: 0, revenue: 0, orders: [] };
-      acc[vId].orderCount += 1;
-      if (!isCancelled) acc[vId].revenue += vendorAmount;
-      acc[vId].orders.push({
-        id: o.id,
-        orderId: o.orderId,
-        createdAt: o.createdAt,
-        status: o.status,
-        amount: vendorAmount,
-        items: vItems,
-        customerName: o.userInfo?.name,
-      });
-    });
-
-    return acc;
-  }, {});
-
-  const getVendorStats = (vendorId) =>
-    vendorOrderMap[vendorId] || { orderCount: 0, revenue: 0, orders: [] };
-
-  const totalRevenue = Object.values(vendorOrderMap).reduce((sum, v) => sum + v.revenue, 0);
-  const totalOrders  = orders.length;
 
   const filtered = vendors.filter((v) => {
     const q = search.toLowerCase();
@@ -157,12 +99,10 @@ export default function AllVendors() {
         {/* ── Stat Cards ── */}
         <div className="vl-stats">
           {[
-            { label: "Total Sellers",  val: vendors.length,            color: "#6366f1", bg: "#eef2ff" },
-            { label: "Approved",       val: counts.approved  || 0,     color: "#16a34a", bg: "#f0fdf4" },
-            { label: "Pending",        val: counts.pending   || 0,     color: "#d97706", bg: "#fffbeb" },
-            { label: "Rejected",       val: counts.rejected  || 0,     color: "#dc2626", bg: "#fef2f2" },
-            { label: "Total Orders",   val: totalOrders,               color: "#0891b2", bg: "#ecfeff" },
-            { label: "Total Revenue",  val: formatCurrency(totalRevenue), color: "#9333ea", bg: "#faf5ff" },
+            { label: "Total Sellers",  val: vendors.length,         color: "#6366f1", bg: "#eef2ff" },
+            { label: "Approved",       val: counts.approved  || 0,  color: "#16a34a", bg: "#f0fdf4" },
+            { label: "Pending",        val: counts.pending   || 0,  color: "#d97706", bg: "#fffbeb" },
+            { label: "Rejected",       val: counts.rejected  || 0,  color: "#dc2626", bg: "#fef2f2" },
           ].map((s) => (
             <div key={s.label} className="vl-stat-card" style={{ "--accent": s.color, "--accent-bg": s.bg }}>
               <div className="vl-stat-num">{loading ? "—" : s.val}</div>
@@ -206,11 +146,6 @@ export default function AllVendors() {
           <div className="vl-cards">
             {filtered.map((vendor) => {
               const isOpen = expandedId === vendor.id;
-              const stats = getVendorStats(vendor.id);
-              const recentOrders = [...stats.orders]
-                .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
-                .slice(0, 5);
-
               return (
                 <div key={vendor.id} className={`vl-card ${isOpen ? "vl-card-open" : ""}`}>
 
@@ -235,8 +170,6 @@ export default function AllVendors() {
                         {vendor.phone && <span className="vl-chip">📞 {vendor.phone}</span>}
                         {vendor.gst   && <span className="vl-chip">GST: {vendor.gst}</span>}
                         <span className="vl-chip">📅 {formatDate(vendor.createdAt)}</span>
-                        <span className="vl-chip">🛒 {stats.orderCount} Orders</span>
-                        <span className="vl-chip">💰 {formatCurrency(stats.revenue)}</span>
                       </div>
                     </div>
 
@@ -301,51 +234,6 @@ export default function AllVendors() {
                           <span className="vl-detail-val vl-mono">{vendor.id}</span>
                         </div>
 
-                        <div className="vl-detail-block">
-                          <span className="vl-detail-label">Total Orders</span>
-                          <span className="vl-detail-val">{stats.orderCount}</span>
-                        </div>
-
-                        <div className="vl-detail-block">
-                          <span className="vl-detail-label">Total Revenue</span>
-                          <span className="vl-detail-val">{formatCurrency(stats.revenue)}</span>
-                        </div>
-
-                      </div>
-
-                      {/* Recent Orders */}
-                      <div className="vl-orders-wrap">
-                        <span className="vl-detail-label">Recent Orders</span>
-                        {recentOrders.length === 0 ? (
-                          <div className="vl-empty" style={{ padding: "1rem 0" }}>
-                            No orders yet.
-                          </div>
-                        ) : (
-                          <table className="vl-orders-table">
-                            <thead>
-                              <tr>
-                                <th>Order ID</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {recentOrders.map((o) => (
-                                <tr key={o.id}>
-                                  <td className="vl-mono">{o.id}</td>
-                                  <td>{formatDate(o.createdAt)}</td>
-                                  <td>{formatCurrency(o.totalAmount ?? o.amount)}</td>
-                                  <td>
-                                    <span className={`vbadge vbadge-${(o.status || "pending").toLowerCase()}`}>
-                                      {o.status || "Pending"}
-                                    </span>
-                                  </td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        )}
                       </div>
 
                       {/* Banner */}
