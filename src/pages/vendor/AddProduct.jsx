@@ -183,6 +183,15 @@ export default function AddProduct() {
                   onChange={e => set("brand", e.target.value)}
                 />
               </div>
+               <div className="ap-field">
+    <label className="ap-label">COLOR</label>
+    <input
+      className="ap-input"
+      placeholder="Ex: Black, Navy Blue, White"
+      value={product.color}
+      onChange={e => set("color", e.target.value)}
+    />
+  </div>
             </div>
 
             <div className="ap-triple">
@@ -280,19 +289,38 @@ export default function AddProduct() {
             <div className="ap-field">
               <label className="ap-label">IMAGES</label>
               <div className="ap-images">
-                {images.map((file, index) => (
-                  <div key={index} className="ap-slot">
-                    <input
-                      type="file" id={`img-${index}`} hidden accept="image/*"
-                      onChange={e => handleImageChange(index, e.target.files[0])}
-                    />
-                    <label htmlFor={`img-${index}`} className="ap-slot-label">
-                      {file ? <CheckCircle size={16} /> : <UploadCloud size={16} />}
-                    </label>
-                  </div>
-                ))}
-                <button type="button" className="ap-add-slot" onClick={addMoreImageField}><Plus size={14} /></button>
-              </div>
+  {images.map((file, index) => (
+    <div key={index} className="ap-slot">
+      <input
+        type="file"
+        id={`img-${index}`}
+        hidden
+        accept="image/*"
+        onChange={e => handleImageChange(index, e.target.files[0])}
+      />
+
+      <label htmlFor={`img-${index}`} className="ap-slot-label">
+        {file ? (
+          <img
+            src={URL.createObjectURL(file)}
+            alt={`Preview ${index + 1}`}
+            className="ap-preview"
+          />
+        ) : (
+          <UploadCloud size={22} />
+        )}
+      </label>
+    </div>
+  ))}
+
+  <button
+    type="button"
+    className="ap-add-slot"
+    onClick={addMoreImageField}
+  >
+    <Plus size={14} />
+  </button>
+</div>
             </div>
 
             <button

@@ -154,3 +154,51 @@
 .auth-forgot span:hover {
   text-decoration: underline;
 }
+
+/* Forgot Password */
+.auth-forgot span {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.auth-forgot span:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Register Link */
+.auth-footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--auth-text-muted);
+}
+
+.auth-footer-link {
+  color: #2563eb;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.auth-footer-link:hover {
+  color: #1d4ed8;
+  text-decoration: underline;
+}
+
+/* Loading Spinner */
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}

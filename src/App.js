@@ -18,40 +18,45 @@ import ProductsList from "./pages/vendor/ProductsList";
 import VendorProfile from "./pages/vendor/Profile";
 import ForgotPassword from "./pages/vendor/ForgotPassword";
 import VendorOrders from "./pages/vendor/VendorOrders"
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function App() {
   return (
     <BrowserRouter>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme="light"
+      />
+
       <Routes>
         {/* ROOT */}
         <Route path="/" element={<RoleSelection />} />
 
         {/* ADMIN */}
         <Route path="/admin/login" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<AdminDashboard />} />
-          <Route path="/admin/vendor-requests" element={<VendorRequests />} />
-          <Route path="/admin/categories" element={<ManageCategories />} />
-       <Route path="/admin/listings" element={<AdminListing />} />
-       <Route
-  path="/admin/users"
-  element={<AdminUsers />}
-/>
-      
-     
+        <Route path="/admin/dashboard" element={<AdminDashboard />} />
+        <Route path="/admin/vendor-requests" element={<VendorRequests />} />
+        <Route path="/admin/categories" element={<ManageCategories />} />
+        <Route path="/admin/listings" element={<AdminListing />} />
+        <Route path="/admin/users" element={<AdminUsers />} />
 
         {/* VENDOR */}
         <Route path="/vendor/login" element={<VendorLogin />} />
         <Route path="/vendor/signup" element={<VendorSignup />} />
-          <Route path="/vendor/dashboard" element={<VendorDashboard />} />
-          <Route path="/vendor/add-product" element={<AddProduct />} />
-          <Route path="/vendor/products" element={<ProductsList />} />
-          <Route path="/vendor/profile" element={<VendorProfile />} />
-  <Route path="/vendor/forgot-password" element={<ForgotPassword />} />
-  <Route path="/vendor/orders" element={<VendorOrders />} />
-       
+        <Route path="/vendor/dashboard" element={<VendorDashboard />} />
+        <Route path="/vendor/add-product" element={<AddProduct />} />
+        <Route path="/vendor/products" element={<ProductsList />} />
+        <Route path="/vendor/profile" element={<VendorProfile />} />
+        <Route path="/vendor/forgot-password" element={<ForgotPassword />} />
+        <Route path="/vendor/orders" element={<VendorOrders />} />
+
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+
     </BrowserRouter>
   );
 }

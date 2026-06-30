@@ -25,9 +25,15 @@ export default function VendorSidebar() {
   const shopName = vendor?.shopName || "Vendor Dashboard";
 
   const logout = () => {
-    localStorage.removeItem("vendorAuth");
-    navigate("/vendor/login");
-  };
+  const confirmLogout = window.confirm(
+    "Are you sure you want to logout?"
+  );
+
+  if (!confirmLogout) return;
+
+  localStorage.removeItem("vendorAuth");
+  navigate("/vendor/login");
+};
 
   return (
     <>

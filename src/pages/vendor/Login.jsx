@@ -12,6 +12,8 @@ import {
   EyeOff,
 } from "lucide-react";
 import "../../styles/Auth.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -21,49 +23,77 @@ export default function Login() {
   const navigate = useNavigate();
 
   const submit = async () => {
-    if (!form.email || !form.password) {
-      return toast.warn("Please enter both email and password");
+  if (!form.email || !form.password) {
+    toast.warning(
+      "Please enter both email and password"
+    );
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const user = await loginVendor(
+      form.email,
+      form.password
+    );
+
+    localStorage.setItem(
+      "vendorAuth",
+      user.uid
+    );
+
+    toast.success(
+      "🎉 Login Successful! Welcome back."
+    );
+
+    setTimeout(() => {
+      navigate("/vendor/dashboard");
+    }, 1000);
+  } catch (err) {
+    localStorage.removeItem("vendorAuth");
+
+    if (
+      err.code ===
+        "auth/invalid-credential" ||
+      err.code === "auth/wrong-password"
+    ) {
+      toast.error("❌ Wrong Password");
+    } else if (
+      err.code === "auth/user-not-found"
+    ) {
+      toast.error("❌ Account not found");
+    } else if (
+      err.message === "PENDING_APPROVAL"
+    ) {
+      toast.warning(
+        "⏳ Your account is awaiting admin approval."
+      );
+    } else if (
+      err.message === "REJECTED"
+    ) {
+      toast.error(
+        "🚫 Your account was rejected by admin."
+      );
+    } else {
+      toast.error(
+        "❌ Login failed. Please try again."
+      );
     }
 
-    setLoading(true);
-    try {
-      const user = await loginVendor(form.email, form.password);
-
-      toast.success("Welcome back! Login Successful 🎉");
-      localStorage.setItem("vendorAuth", user.uid);
-
-      setTimeout(() => {
-        navigate("/vendor/dashboard");
-      }, 800);
-    } catch (err) {
-      localStorage.removeItem("vendorAuth");
-
-      const errorMessages = {
-        PENDING_APPROVAL: "⏳ Your account is awaiting admin approval.",
-        REJECTED: "🚫 Your request was rejected by the admin.",
-        USER_NOT_FOUND: "❌ Vendor record not found. Please register.",
-        "auth/invalid-credential": "❌ Incorrect Email or Password",
-        "auth/user-not-found": "❌ Account not found.",
-        "auth/wrong-password": "❌ Incorrect Password",
-      };
-
-      const message =
-        errorMessages[err.code] ||
-        errorMessages[err.message] ||
-        "❌ Login failed. Please try again.";
-
-      toast.error(message);
-      console.error("Full Login Error:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter") submit();
   };
 
   return (
+
+    
     <div className="auth-container">
       <div className="auth-card">
         {/* Header */}

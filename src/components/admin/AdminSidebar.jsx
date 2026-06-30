@@ -15,10 +15,16 @@ export default function AdminSidebar({ active }) {
   const navigate = useNavigate();
   const auth = getAuth();
 
-  const logout = async () => {
-    await signOut(auth); // 🔥 Firebase logout
-    navigate("/admin/login");
-  };
+  const logout = () => {
+  const confirmLogout = window.confirm(
+    "Are you sure you want to logout?"
+  );
+
+  if (!confirmLogout) return;
+
+  localStorage.removeItem("vendorAuth");
+  navigate("/admin/login");
+};
 
   return (
     <aside className="gl-sidebar">
@@ -50,10 +56,7 @@ export default function AdminSidebar({ active }) {
             <span className="gl-nav-label">VENDOR_REQUESTS</span>
           </div>
 
-          <div className="gl-nav-item">
-            <Store size={18} strokeWidth={1.5} />
-            <span className="gl-nav-label">SHOPS_ARCHIVE</span>
-          </div>
+    
 
           <div className="gl-nav-item">
             <UserCheck size={18} strokeWidth={1.5} />
@@ -69,15 +72,15 @@ export default function AdminSidebar({ active }) {
           </div>
 
           <div
-            className={`gl-nav-item ${active === "categories" ? "active" : ""}`}
+            className={`gl-nav-item`}
             onClick={() => navigate("/admin/listings")}
           >
-            <FolderPlus size={18} strokeWidth={1.5} />
+            <Store size={18} strokeWidth={1.5} />
             <span className="gl-nav-label">Admin Listing</span>
           </div>
 
           <div
-            className={`gl-nav-item ${active === "categories" ? "active" : ""}`}
+            className={`gl-nav-item`}
             onClick={() => navigate("/admin/users")}
           >
             <FolderPlus size={18} strokeWidth={1.5} />

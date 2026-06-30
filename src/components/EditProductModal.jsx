@@ -62,9 +62,13 @@ export default function EditProductModal({ show, onClose, product }) {
       }
 
       await updateDoc(doc(db, "products", product.id), {
-        ...updated,
-        images: finalImages,
-      });
+  ...updated,
+  price: Number(updated.price),
+  stock: Number(updated.stock),
+  condition: Number(updated.condition),
+  waist: updated.waist ? Number(updated.waist) : null,
+  images: finalImages,
+});
 
       toast.success("Product updated successfully!");
       onClose(true);
@@ -164,6 +168,103 @@ export default function EditProductModal({ show, onClose, product }) {
 
             <label style={labelStyle}>Price (₹)</label>
             <input style={inputStyle} type="number" value={updated.price || ""} onChange={(e) => setUpdated({ ...updated, price: e.target.value })} />
+
+            <label style={labelStyle}>Brand</label>
+<input
+  style={inputStyle}
+  value={updated.brand || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, brand: e.target.value })
+  }
+/>
+
+<label style={labelStyle}>Color</label>
+<input
+  style={inputStyle}
+  placeholder="e.g. Black, White, Navy Blue"
+  value={updated.color || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, color: e.target.value })
+  }
+/>
+
+<label style={labelStyle}>Gender</label>
+<select
+  style={inputStyle}
+  value={updated.gender || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, gender: e.target.value })
+  }
+>
+  <option value="">Select Gender</option>
+  <option value="male">Male</option>
+  <option value="female">Female</option>
+  <option value="unisex">Unisex</option>
+</select>
+
+<label style={labelStyle}>Chest (IN)</label>
+<input
+  type="number"
+  style={inputStyle}
+  value={updated.chest || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, chest: e.target.value })
+  }
+/>
+
+<label style={labelStyle}>Length (IN)</label>
+<input
+  type="number"
+  style={inputStyle}
+  value={updated.length || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, length: e.target.value })
+  }
+/>
+
+<label style={labelStyle}>Waist (IN)</label>
+<input
+  type="number"
+  style={inputStyle}
+  value={updated.waist || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, waist: e.target.value })
+  }
+/>
+
+
+<label style={labelStyle}>
+  Condition: {updated.condition || 1}/10
+</label>
+
+<input
+  type="range"
+  min="1"
+  max="10"
+  value={updated.condition || 1}
+  onChange={(e) =>
+    setUpdated({ ...updated, condition: Number(e.target.value) })
+  }
+  style={{ width: "100%" }}
+/>
+
+
+
+<label style={labelStyle}>Description</label>
+
+<textarea
+  rows={4}
+  style={{
+    ...inputStyle,
+    resize: "vertical"
+  }}
+  value={updated.description || ""}
+  onChange={(e) =>
+    setUpdated({ ...updated, description: e.target.value })
+  }
+/>
+
+
 
             <label style={labelStyle}>Stock</label>
             <input style={inputStyle} type="number" value={updated.stock || ""} onChange={(e) => setUpdated({ ...updated, stock: e.target.value })} />
