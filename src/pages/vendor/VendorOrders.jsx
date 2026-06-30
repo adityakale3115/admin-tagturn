@@ -6,6 +6,7 @@ import {
   getDocs,
   orderBy,
   doc,
+  getDoc,
   updateDoc,
 } from "firebase/firestore";
 import { auth, db } from "../../firebase/firebaseConfig";
@@ -103,12 +104,29 @@ export default function VendorOrders() {
   }
 };
 
-  const printInvoice = (order) => {
+const handlePrintInvoice = async (order) => {
+  try {
+    const vendorSnap = await getDoc(doc(db, "vendors", order.vendorId));
+
+    let vendor = null;
+
+    if (vendorSnap.exists()) {
+      vendor = vendorSnap.data();
+    }
+
+    console.log("Vendor:", vendor);
+
+    printInvoice(order, vendor);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+  const printInvoice = (order, vendor) => {
   const user = order.userInfo || {};
   const items = order.items || [];
-
+  console.log("Vendor:", vendor);
   const invoiceWindow = window.open("", "_blank");
-
   invoiceWindow.document.write(`
     <html>
       <head>
@@ -116,68 +134,231 @@ export default function VendorOrders() {
         <style>
           body {
             font-family: Arial;
-            padding: 30px;
+            padding: 40px;
+            color: #333;
+            position: relative;
           }
 
-          h1 {
-            text-align: center;
+          /* ── TagTurn Watermark ── */
+          body::before {
+            content: "TagTurn";
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-35deg);
+            font-size: 100px;
+            font-weight: 900;
+            color: rgba(0, 0, 0, 0.05);
+            pointer-events: none;
+            z-index: 0;
+            white-space: nowrap;
+            letter-spacing: 10px;
           }
 
+          .content { position: relative; z-index: 1; }
+
+          /* ── Header ── */
+          .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #222;
+            padding-bottom: 16px;
+            margin-bottom: 24px;
+          }
+          .brand {
+            font-size: 32px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            color: #111;
+          }
+          .invoice-label {
+            font-size: 22px;
+            font-weight: bold;
+            color: #555;
+          }
+
+          /* ── From / To ── */
+          .address-row {
+            display: flex;
+            gap: 40px;
+            margin-bottom: 28px;
+          }
+          .address-box {
+            flex: 1;
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px 20px;
+          }
+          .address-box h3 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #888;
+          }
+          .address-box p {
+            margin: 4px 0;
+            font-size: 14px;
+            line-height: 1.5;
+          }
+          .address-box .name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #111;
+          }
+
+          /* ── Order Meta ── */
+          .order-meta {
+            display: flex;
+            gap: 30px;
+            margin-bottom: 24px;
+            font-size: 14px;
+          }
+          .order-meta span { color: #555; }
+          .order-meta b   { color: #111; }
+
+          /* ── Items Table ── */
           table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-bottom: 20px;
           }
-
-          th, td {
-            border: 1px solid #ddd;
-            padding: 10px;
-          }
-
           th {
-            background: #f5f5f5;
+            background: #222;
+            color: #fff;
+            padding: 10px 12px;
+            text-align: left;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+          }
+          td {
+            border-bottom: 1px solid #eee;
+            padding: 10px 12px;
+            font-size: 14px;
+          }
+          tr:last-child td { border-bottom: none; }
+          tr:nth-child(even) td { background: #fafafa; }
+
+          /* ── Total ── */
+          .total-row {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+          }
+          .total-box {
+            background: #222;
+            color: #fff;
+            padding: 14px 30px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: bold;
+            letter-spacing: 1px;
+          }
+
+          /* ── Footer ── */
+          .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #aaa;
+            border-top: 1px solid #eee;
+            padding-top: 16px;
+          }
+
+          @media print {
+            body { padding: 20px; }
           }
         </style>
       </head>
-
       <body>
-        <h1>INVOICE</h1>
+        <div class="content">
 
-        <p><b>Order ID:</b> ${order.orderId}</p>
-        <p><b>Customer:</b> ${user.name || ""}</p>
-        <p><b>Mobile:</b> ${user.mobile || ""}</p>
-        <p><b>Address:</b> ${user.address || ""}</p>
+          <!-- Header -->
+          <div class="header">
+            <div class="brand">TagTurn</div>
+            <div class="invoice-label">INVOICE</div>
+          </div>
 
-        <table>
-          <tr>
-            <th>Product</th>
-            <th>Size</th>
-            <th>Qty</th>
-            <th>Price</th>
-          </tr>
+          <!-- Order Meta -->
+          <div class="order-meta">
+            <div><span>Order ID: </span><b>${order.orderId}</b></div>
+            <div><span>Status: </span><b>${order.status || "-"}</b></div>
+            <div><span>Date: </span><b>${
+              order.createdAt
+                ? new Date(order.createdAt.seconds * 1000).toLocaleDateString("en-IN", {
+                    day: "2-digit", month: "short", year: "numeric"
+                  })
+                : new Date().toLocaleDateString("en-IN", {
+                    day: "2-digit", month: "short", year: "numeric"
+                  })
+            }</b></div>
+          </div>
 
-          ${items
-            .map(
-              (item) => `
-            <tr>
-              <td>${item.name}</td>
-              <td>${item.size || "-"}</td>
-              <td>${item.quantity}</td>
-              <td>₹${item.price}</td>
-            </tr>
-          `
-            )
-            .join("")}
-        </table>
+          <!-- From / To Addresses -->
+          <div class="address-row">
+            <div class="address-box">
+              <h3>From (Vendor)</h3>
+              <p class="name">${vendor?.shopName || "TagTurn Seller"}</p>
+              <p>${vendor?.address || "-"}</p>
+              ${vendor?.phone ? `<p>📞 ${vendor.phone}</p>` : ""}
+              ${vendor?.email ? `<p>✉️ ${vendor.email}</p>` : ""}
+              ${vendor?.gst ? `<p>GST: ${vendor.gst}</p>` : ""}
+            </div>
+            <div class="address-box">
+              <h3>To (Customer)</h3>
+              <p class="name">${user.name || "-"}</p>
+              <p>${user.address || "-"}</p>
+              ${user.mobile ? `<p>📞 ${user.mobile}</p>` : ""}
+            </div>
+          </div>
 
-        <h2 style="text-align:right">
-          Total: ₹${order.totalAmount}
-        </h2>
+          <!-- Items Table -->
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Product</th>
+                <th>Size</th>
+                <th>Qty</th>
+                <th>Unit Price</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items
+                .map(
+                  (item, index) => `
+                <tr>
+                  <td>${index + 1}</td>
+                  <td>${item.name}</td>
+                  <td>${item.size || "-"}</td>
+                  <td>${item.quantity}</td>
+                  <td>₹${item.price}</td>
+                  <td>₹${(item.price * item.quantity).toFixed(2)}</td>
+                </tr>
+              `
+                )
+                .join("")}
+            </tbody>
+          </table>
 
+          <!-- Total -->
+          <div class="total-row">
+            <div class="total-box">Total: ₹${order.totalAmount}</div>
+          </div>
+
+          <!-- Footer -->
+          <div class="footer">
+            Thank you for shopping with <b>TagTurn</b>! &nbsp;|&nbsp; This is a computer-generated invoice.
+          </div>
+
+        </div>
       </body>
     </html>
   `);
-
   invoiceWindow.document.close();
   invoiceWindow.print();
 };
@@ -261,7 +442,7 @@ export default function VendorOrders() {
 
     <button
       className="invoice-btn"
-      onClick={() => printInvoice(order)}
+      onClick={() => handlePrintInvoice(order)}
     >
       Invoice
     </button>
@@ -319,7 +500,7 @@ export default function VendorOrders() {
                     {renderStatusBadge(order.status)}
                     <button
   className="invoice-btn"
-  onClick={() => printInvoice(order)}
+  onClick={() => handlePrintInvoice(order)}
 >
   Print Invoice
 </button>
