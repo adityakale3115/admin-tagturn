@@ -10,7 +10,7 @@ export default function AdminLogin() {
   const provider = new GoogleAuthProvider();
 
   // 🛡️ Whitelisted Admin Email
-  const ADMIN_EMAIL = "aditya.kale0405@gmail.com";
+  const ADMIN_EMAIL = "tagturn.in@gmail.com";
 
   const loginWithGoogle = async () => {
     try {

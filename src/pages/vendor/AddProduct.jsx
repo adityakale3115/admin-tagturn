@@ -65,7 +65,7 @@ export default function AddProduct() {
       : [...product.sizes, size]);
 
   const handleImageChange = (index, file) => {
-    if (file && file.size > 2 * 1024 * 1024)
+    if (file && file.size > 30 * 1024 * 1024)
       return toast.warn("FILE SIZE EXCEEDED: MAX 2MB");
     const updated = [...images];
     updated[index] = file || null;
